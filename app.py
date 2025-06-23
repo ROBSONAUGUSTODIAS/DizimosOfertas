@@ -106,7 +106,7 @@ else:
             data = st.date_input("Data do Lançamento", datetime.today())
             nome = st.text_input("Nome da Pessoa")
             valor = st.number_input("Valor da Oferta/Dízimo", min_value=0.01, format="%.2f")
-            tipo = st.selectbox("Forma de Pagamento", ["Dinheiro", "Máquina de Cartão"])
+            tipo = st.selectbox("Forma de Pagamento", ["Dinheiro","Pix" ,"Máquina de Cartão"])
             categoria = st.selectbox("Categoria", ["Dízimo", "Oferta"])  # Nova opção de categoria
             submitted = st.form_submit_button("Registrar")
             if submitted:
@@ -143,8 +143,8 @@ else:
         data_edit = st.sidebar.date_input("Nova Data")
         nome_edit = st.sidebar.text_input("Novo Nome")
         valor_edit = st.sidebar.number_input("Novo Valor", min_value=0.01, format="%.2f")
-        tipo_edit = st.sidebar.selectbox("Nova Forma de Pagamento", ["Dinheiro", "Máquina de Cartão"])
-        categoria_edit = st.sidebar.selectbox("Nova Categoria", ["Dízimo", "Oferta"])  # Nova categoria
+        tipo_edit = st.sidebar.selectbox("Nova Forma de Pagamento", ["Dinheiro", "Máquina de Cartão","Pix"])
+        categoria_edit = st.sidebar.selectbox("Nova Categoria", ["Dízimo","Pix" ,"Oferta"])  # Nova categoria
         edit_submit = st.sidebar.button("Atualizar Lançamento")
 
         if edit_submit:
