@@ -2,3 +2,4 @@ streamlit
 pandas
 sqlite3  # pode ser omitido, já é nativo do Python
 streamlit-option-menu
+sqlite3
