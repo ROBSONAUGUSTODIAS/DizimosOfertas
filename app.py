@@ -3,9 +3,34 @@ import sqlite3
 import pandas as pd
 from datetime import datetime
 from streamlit_option_menu import option_menu
+from PIL import Image
+import io
+import base64
 
 # Credenciais de login (simples)
 USER_CREDENTIALS = {"usuario": "admin", "senha": "1234"}
+USER_CREDENTIALS = {"usuario": "dechomai", "senha": "dechomai@#"}
+
+# Função para exibir a logo
+def display_logo():
+    # Criando uma imagem simples com o texto (caso não queira carregar o arquivo)
+    # Ou podemos carregar a imagem do arquivo se estiver disponível
+    try:
+        logo = Image.open(".\imagem\igrejadechomai.jfif")
+        st.image(logo, width=150)
+    except:
+        # Se não conseguir carregar a imagem, exibe um texto estilizado
+        st.markdown("""
+        <style>
+            .logo {
+                font-size: 24px;
+                font-weight: bold;
+                color: #2c3e50;
+                margin-bottom: 20px;
+            }
+        </style>
+        <div class="logo">MINISTÉRIO DECHONAI</div>
+        """, unsafe_allow_html=True)
 
 # Função para inicializar o banco de dados
 def init_db():
@@ -86,9 +111,18 @@ if "logado" not in st.session_state or not st.session_state["logado"]:
             else:
                 st.error("Credenciais inválidas. Tente novamente.")
 else:
+    # Layout com logo no topo
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        display_logo()
+    with col2:
+        st.title("Sistema de Dízimos e Ofertas")
+
     # Menu lateral após login
     with st.sidebar:
-        escolha = option_menu("Menu", ["Registrar", "Visualizar", "Editar"], icons=["plus-circle", "list", "pencil-square"], menu_icon="menu")
+        escolha = option_menu("Menu", ["Registrar", "Visualizar", "Editar"], 
+                             icons=["plus-circle", "list", "pencil-square"], 
+                             menu_icon="menu")
 
     # Inicializar banco de dados
     init_db()
@@ -106,8 +140,8 @@ else:
             data = st.date_input("Data do Lançamento", datetime.today())
             nome = st.text_input("Nome da Pessoa")
             valor = st.number_input("Valor da Oferta/Dízimo", min_value=0.01, format="%.2f")
-            tipo = st.selectbox("Forma de Pagamento", ["Dinheiro","Pix" ,"Máquina de Cartão"])
-            categoria = st.selectbox("Categoria", ["Dízimo", "Oferta"])  # Nova opção de categoria
+            tipo = st.selectbox("Forma de Pagamento", ["Dinheiro", "Pix", "Máquina de Cartão"])
+            categoria = st.selectbox("Categoria", ["Dízimo", "Oferta"])
             submitted = st.form_submit_button("Registrar")
             if submitted:
                 if nome.strip():
@@ -143,8 +177,8 @@ else:
         data_edit = st.sidebar.date_input("Nova Data")
         nome_edit = st.sidebar.text_input("Novo Nome")
         valor_edit = st.sidebar.number_input("Novo Valor", min_value=0.01, format="%.2f")
-        tipo_edit = st.sidebar.selectbox("Nova Forma de Pagamento", ["Dinheiro", "Máquina de Cartão","Pix"])
-        categoria_edit = st.sidebar.selectbox("Nova Categoria", ["Dízimo","Pix" ,"Oferta"])  # Nova categoria
+        tipo_edit = st.sidebar.selectbox("Nova Forma de Pagamento", ["Dinheiro", "Pix", "Máquina de Cartão"])
+        categoria_edit = st.sidebar.selectbox("Nova Categoria", ["Dízimo", "Oferta"])
         edit_submit = st.sidebar.button("Atualizar Lançamento")
 
         if edit_submit:
