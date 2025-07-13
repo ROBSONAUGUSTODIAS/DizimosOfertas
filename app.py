@@ -241,9 +241,11 @@ else:
             
             total_dizimo_geral = sum(l[3] for l in lancamentos if l[5] == "Dízimo")
             total_oferta_geral = sum(l[3] for l in lancamentos if l[5] == "Oferta")
+            total_visitante_geral = sum(l[3] for l in lancamentos if l[5] == "Visitante")
 
             total_dizimo_mes = sum(l[3] for l in lancamentos_mes_atual if l[5] == "Dízimo")
             total_oferta_mes = sum(l[3] for l in lancamentos_mes_atual if l[5] == "Oferta")
+            total_visitante_mes = sum(l[3] for l in lancamentos_mes_atual if l[5] == "Visitante")
 
             # Exibição das métricas principais
             st.markdown("#### Totais de Entradas")
@@ -254,17 +256,18 @@ else:
 
             st.markdown("---")
             st.markdown("#### Detalhes por Categoria (Mês Atual)")
-            col4, col5 = st.columns(2)
+            col4, col5, col6 = st.columns(3)
             col4.metric("Dízimos", f"R$ {total_dizimo_mes:.2f}")
             col5.metric("Ofertas", f"R$ {total_oferta_mes:.2f}")
+            col6.metric("Visitantes", f"R$ {total_visitante_mes:.2f}")
 
             # Gráfico de distribuição mensal
-            if total_dizimo_mes > 0 or total_oferta_mes > 0:
+            if total_dizimo_mes > 0 or total_oferta_mes > 0 or total_visitante_mes > 0:
                 st.markdown("---")
-                st.markdown("#### Distribuição Mensal de Dízimos e Ofertas")
+                st.markdown("#### Distribuição Mensal de Dízimos, Ofertas e Visitantes")
                 chart_data = pd.DataFrame({
-                    'Categoria': ['Dízimo', 'Oferta'],
-                    'Valor': [total_dizimo_mes, total_oferta_mes]
+                    'Categoria': ['Dízimo', 'Oferta', 'Visitante'],
+                    'Valor': [total_dizimo_mes, total_oferta_mes, total_visitante_mes]
                 })
                 st.bar_chart(chart_data.set_index('Categoria'))
 
@@ -272,6 +275,7 @@ else:
             with st.expander("Ver Totais Gerais por Categoria (Acumulado)"):
                 st.write(f"**Total Geral de Dízimos:** R$ {total_dizimo_geral:.2f}")
                 st.write(f"**Total Geral de Ofertas:** R$ {total_oferta_geral:.2f}")
+                st.write(f"**Total Geral de Visitantes:** R$ {total_visitante_geral:.2f}")
             # ============================================
             # FIM DO RESUMO FINANCEIRO MELHORADO
             # ============================================
@@ -286,7 +290,7 @@ else:
             nome = st.text_input("Nome", max_chars=100)
             valor = st.number_input("Valor (R$)", min_value=0.01, step=0.01, format="%.2f")
             tipo = st.selectbox("Tipo de Pagamento", ["Dinheiro", "Cartão", "Transferência", "Cheque"," Pix"])
-            categoria = st.selectbox("Categoria", ["Dízimo", "Oferta"])
+            categoria = st.selectbox("Categoria", ["Dízimo", "Oferta", "Visitante"])
             submit_button = st.form_submit_button("Registrar")
             
             if submit_button:
@@ -325,8 +329,13 @@ else:
                 
                 tipo = st.selectbox("Tipo de Pagamento", tipos_pagamento, index=index_tipo)
                 
-                categoria = st.selectbox("Categoria", ["Dízimo", "Oferta"], 
-                                       index=0 if lancamento_selecionado[5] == "Dízimo" else 1)
+                categorias = ["Dízimo", "Oferta", "Visitante"]
+                try:
+                    index_categoria = categorias.index(lancamento_selecionado[5])
+                except ValueError:
+                    index_categoria = 0
+                
+                categoria = st.selectbox("Categoria", categorias, index=index_categoria)
                 
                 col1, col2 = st.columns(2)
                 with col1:
