@@ -5,6 +5,11 @@
 *.env
 .env.example
 
+# Streamlit Secrets (use Streamlit Cloud Secrets Manager)
+.streamlit/secrets.toml
+.streamlit/
+STREAMLIT_SECRETS.txt
+
 # ========================================
 # PYTHON
 # ========================================

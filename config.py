@@ -1,15 +1,32 @@
 """
 Módulo de Configurações do Sistema
 """
-
-"""
-Módulo de Configurações do Sistema
-"""
 import os
-from dotenv import load_dotenv
 
-# Carrega variáveis de ambiente do arquivo .env
-load_dotenv()
+# Tenta importar streamlit para uso de secrets (Streamlit Cloud)
+try:
+    import streamlit as st
+    USE_STREAMLIT_SECRETS = hasattr(st, 'secrets') and len(st.secrets) > 0
+except (ImportError, FileNotFoundError):
+    USE_STREAMLIT_SECRETS = False
+
+# Carrega variáveis de ambiente do arquivo .env (desenvolvimento local)
+if not USE_STREAMLIT_SECRETS:
+    from dotenv import load_dotenv
+    load_dotenv()
+
+def get_secret(key, section=None):
+    """
+    Obtém valores secretos de forma flexível:
+    - Streamlit Cloud: usa st.secrets
+    - Desenvolvimento local: usa .env
+    """
+    if USE_STREAMLIT_SECRETS:
+        if section:
+            return st.secrets.get(section, {}).get(key)
+        return st.secrets.get(key)
+    else:
+        return os.getenv(key)
 
 # ============================================
 # CONFIGURAÇÃO DE USUÁRIOS E ACESSOS
@@ -17,12 +34,14 @@ load_dotenv()
 
 # ATENÇÃO: As senhas agora são armazenadas como hashes bcrypt
 # Use o script generate_password_hash.py para gerar novos hashes
-# As senhas devem ser configuradas no arquivo .env
+# 
+# Desenvolvimento local: configure no arquivo .env
+# Streamlit Cloud: configure em Settings → Secrets
 
 USUARIOS_HASHES = {
-    "admin": os.getenv('USER_ADMIN_HASH'),
-    "diacono01": os.getenv('USER_DIACONO01_HASH'),
-    "diacono02": os.getenv('USER_DIACONO02_HASH')
+    "admin": get_secret('USER_ADMIN_HASH', 'passwords') or get_secret('USER_ADMIN_HASH'),
+    "diacono01": get_secret('USER_DIACONO01_HASH', 'passwords') or get_secret('USER_DIACONO01_HASH'),
+    "diacono02": get_secret('USER_DIACONO02_HASH', 'passwords') or get_secret('USER_DIACONO02_HASH')
 }
 
 NIVEIS_ACESSO = {
