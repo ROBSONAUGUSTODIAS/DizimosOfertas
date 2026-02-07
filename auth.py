@@ -41,34 +41,20 @@ def verificar_login(usuario: str, senha: str) -> Optional[Dict[str, str]]:
     Returns:
         Dict com informações do usuário se válido, None caso contrário
     """
-    # Debug: mostra informações de login
-    print(f"\n=== DEBUG LOGIN ===")
-    print(f"Usuário tentando logar: {usuario}")
-    print(f"Usuários disponíveis: {list(USUARIOS_HASHES.keys())}")
-    
     # Verifica se o usuário existe
     if usuario not in USUARIOS_HASHES:
-        print(f"❌ Usuário '{usuario}' não existe")
         return None
     
     # Obtém o hash armazenado
     hash_armazenado = USUARIOS_HASHES[usuario]
     
-    # Debug: verifica se hash existe
+    # Verifica se o hash existe (pode estar None se não configurado)
     if not hash_armazenado:
         print(f"⚠️ Hash não configurado para o usuário: {usuario}")
-        print(f"USUARIOS_HASHES[{usuario}] = {hash_armazenado}")
         return None
     
-    print(f"✓ Hash encontrado: {hash_armazenado[:20]}...")
-    print(f"✓ Tamanho da senha: {len(senha)} caracteres")
-    
     # Verifica a senha
-    senha_valida = verificar_senha_hash(senha, hash_armazenado)
-    print(f"✓ Senha válida: {senha_valida}")
-    print(f"==================\n")
-    
-    if senha_valida:
+    if verificar_senha_hash(senha, hash_armazenado):
         return {
             "usuario": usuario,
             "nome": NOMES_USUARIOS.get(usuario, usuario),
