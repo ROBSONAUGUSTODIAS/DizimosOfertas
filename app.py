@@ -46,6 +46,39 @@ USER_DIACONO02_HASH = "$2b$12$7rxfZGjQqq9cOnpaiRvRnu9vLhNKmKVAFh2zwEvfC9fdaaqmEf
         
         st.markdown("---")
         
+        # Botão de diagnóstico (expander)
+        with st.expander("🔍 Diagnóstico de Configuração (clique se login não funcionar)"):
+            from config import USUARIOS_HASHES, USE_STREAMLIT_SECRETS
+            
+            st.write("**Ambiente:**", "Streamlit Cloud" if USE_STREAMLIT_SECRETS else "Desenvolvimento Local")
+            st.write("**Secrets carregados:**")
+            
+            for usuario, hash_val in USUARIOS_HASHES.items():
+                if hash_val:
+                    st.success(f"✅ {usuario}: Hash configurado ({hash_val[:20]}...)")
+                else:
+                    st.error(f"❌ {usuario}: Hash NÃO configurado (None)")
+            
+            if USE_STREAMLIT_SECRETS:
+                st.info("""
+                **Como corrigir secrets não configurados:**
+                1. Acesse Settings → Secrets no Streamlit Cloud
+                2. Cole o conteúdo TOML fornecido acima
+                3. Salve e aguarde o restart do app
+                """)
+            
+            st.write("**Credenciais de TESTE:**")
+            st.code("""
+Usuário: admin
+Senha: AdminSeguro@2026
+
+Usuário: diacono01  
+Senha: Diacono01@2026
+
+Usuário: diacono02
+Senha: Diacono02@2026
+""")
+        
         with st.form("login_form"):
             usuario = st.text_input("Usuário", placeholder="Digite seu usuário")
             senha = st.text_input("Senha", type="password", placeholder="Digite sua senha")

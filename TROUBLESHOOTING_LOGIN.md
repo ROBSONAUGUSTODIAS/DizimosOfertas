@@ -89,11 +89,42 @@ USER_ADMIN_HASH = '$2b$12$...'
 
 ## 🔍 Como Verificar se Secrets Foram Carregados
 
-### Adicionar Debug Temporário
+### Método 1: Usar o Diagnóstico Integrado
 
-1. No Streamlit Cloud, vá em **Logs**
-2. Procure por erros relacionados a `secrets`
-3. Se aparecer `KeyError: 'passwords'` → Secrets não configurados
+1. Acesse: https://dizimosofertas-dechomai.streamlit.app/
+2. Na tela de login, clique em **"🔍 Diagnóstico de Configuração"**
+3. Verifique se aparece:
+   - ✅ admin: Hash configurado
+   - ✅ diacono01: Hash configurado
+   - ✅ diacono02: Hash configurado
+
+**Se aparecer ❌:** Os Secrets não foram salvos corretamente!
+
+### Método 2: Verificar os Logs
+
+1. No Streamlit Cloud, vá em **Manage app** → **Logs**
+2. Tente fazer login
+3. Procure por mensagens como:
+   ```
+   === DEBUG LOGIN ===
+   Usuário tentando logar: admin
+   ✓ Hash encontrado: $2b$12$kKdAncvxkvi...
+   ✓ Senha válida: True
+   ```
+
+**Se aparecer:**
+- `❌ Usuário 'admin' não existe` → Secrets não configurados
+- `⚠️ Hash não configurado` → Secrets vazios ou formato errado
+- `✓ Senha válida: False` → Senha digitada está errada
+
+### Método 3: Testar Localmente
+
+Execute no seu computador:
+```bash
+python testar_hashes.py
+```
+
+Isso testa se os hashes e senhas estão corretos.
 
 ---
 
@@ -123,6 +154,44 @@ USER_ADMIN_HASH = '$2b$12$...'
 1. Delete todo conteúdo da caixa Secrets
 2. Cole novamente (copie do box acima)
 3. Save e aguarde restart
+
+### Problema: "Credenciais inválidas" mesmo com Secrets Configurados
+
+**Possíveis Causas:**
+
+1. **Senha digitada errada:**
+   - Verifique maiúsculas/minúsculas
+   - Senha admin: `AdminSeguro@2026` (A maiúsculo, S maiúsculo)
+   - Não adicione espaços no início ou fim
+   
+2. **Hash incompleto nos Secrets:**
+   - Cada hash deve ter aproximadamente 60 caracteres
+   - Deve começar com `$2b$12$`
+   - Verifique se copiou o hash COMPLETO
+   
+3. **Formato TOML incorreto:**
+   - Deve ter aspas DUPLAS: `"$2b$12$..."`
+   - NÃO use aspas simples: `'$2b$12$...'`
+   - Linha `[passwords]` deve estar presente
+   
+4. **Usuário em maiúscula:**
+   - Digite `admin` (tudo minúsculo)
+   - NÃO digite `Admin` ou `ADMIN`
+
+**Como Testar:**
+
+Abra o **Diagnóstico de Configuração** na tela de login e veja:
+- Se mostra "Hash configurado" → Secrets OK, verifique a senha
+- Se mostra "Hash NÃO configurado" → Secrets não foram salvos
+
+**Teste Rápido de Senha:**
+
+```
+Usuário: admin
+Senha: AdminSeguro@2026
+
+Copie e cole EXATAMENTE como está acima!
+```
 
 ---
 

@@ -22,9 +22,18 @@ def get_secret(key, section=None):
     - Desenvolvimento local: usa .env
     """
     if USE_STREAMLIT_SECRETS:
-        if section:
-            return st.secrets.get(section, {}).get(key)
-        return st.secrets.get(key)
+        try:
+            if section:
+                # Tenta acessar com seção
+                if section in st.secrets and key in st.secrets[section]:
+                    return st.secrets[section][key]
+            # Tenta acessar diretamente (fallback)
+            if key in st.secrets:
+                return st.secrets[key]
+            return None
+        except Exception as e:
+            print(f"Erro ao acessar secret {key}: {e}")
+            return None
     else:
         return os.getenv(key)
 
