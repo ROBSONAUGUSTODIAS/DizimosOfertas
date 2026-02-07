@@ -24,6 +24,26 @@ def exibir_tela_login():
     
     with col2:
         st.title("💻 Login")
+        
+        # Debug: Verificar se secrets estão configurados (Streamlit Cloud)
+        from config import USUARIOS_HASHES
+        if not any(USUARIOS_HASHES.values()):
+            st.error("⚠️ **ERRO DE CONFIGURAÇÃO**")
+            st.warning("""
+            Os **Secrets não estão configurados** no Streamlit Cloud!
+            
+            **Solução:**
+            1. Acesse: [App Settings](https://share.streamlit.io/)
+            2. Clique em **Settings** → **Secrets**
+            3. Cole este conteúdo:
+            """)
+            st.code("""[passwords]
+USER_ADMIN_HASH = "$2b$12$kKdAncvxkviV412Bj.WuMe2ve/Qaqkn4sq1CiFXh.QeWF6Bp1hXbq"
+USER_DIACONO01_HASH = "$2b$12$7erenEeA2eP5HecUUGGtp.LRxYuxXqYWKb/zNwT8VOIpM6UyeWMEy"
+USER_DIACONO02_HASH = "$2b$12$7rxfZGjQqq9cOnpaiRvRnu9vLhNKmKVAFh2zwEvfC9fdaaqmEfSN"
+""", language="toml")
+            st.info("📖 Veja o guia completo: TROUBLESHOOTING_LOGIN.md")
+        
         st.markdown("---")
         
         with st.form("login_form"):
