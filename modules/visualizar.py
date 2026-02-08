@@ -80,7 +80,7 @@ def exibir_pagina_visualizar():
         # Tabela com altura fixa e scroll
         st.dataframe(
             df, 
-            use_container_width=True, 
+            width="stretch", 
             hide_index=True,
             height=400  # Altura fixa para melhor controle em mobile
         )
@@ -151,7 +151,7 @@ def exibir_resumo_financeiro(lancamentos):
                 totais["total_visitante_mes"]
             ]
         })
-        st.bar_chart(chart_data.set_index('Categoria'), use_container_width=True)
+        st.bar_chart(chart_data.set_index('Categoria'), width="stretch")
     
     # Seção expansível para totais gerais
     with st.expander("📁 Ver Totais Gerais por Categoria (Acumulado)"):

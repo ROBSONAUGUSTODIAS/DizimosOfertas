@@ -74,7 +74,11 @@ def exibir_pagina_registrar():
     # Informação sobre notificações WhatsApp
     st.info("📱 **WhatsApp:** Disponível apenas para pagamentos via **PIX**! Preencha o celular para enviar confirmação automática.")
     
-    with st.form("registrar_form"):
+    # Inicializa contador de formulários para forçar reset
+    if "form_counter" not in st.session_state:
+        st.session_state.form_counter = 0
+    
+    with st.form(key=f"registrar_form_{st.session_state.form_counter}"):
         # ============================================
         # SEÇÃO: DADOS DO LANÇAMENTO
         # ============================================
@@ -155,65 +159,77 @@ def exibir_pagina_registrar():
         
         # Botão de submit - Full width em mobile
         st.markdown("---")
-        submit_button = st.form_submit_button("✅ Registrar Lançamento", type="primary", use_container_width=True)
+        submit_button = st.form_submit_button("✅ Registrar Lançamento", type="primary", width="stretch")
         
         # ============================================
         # PROCESSAMENTO DO FORMULÁRIO
         # ============================================
         if submit_button:
-            # Validação do nome
-            if not validar_nome(nome):
-                st.error("❌ O nome deve ter pelo menos 2 caracteres.")
-                return
-            
-            # Validação do valor
-            if not validar_valor(valor):
-                st.error("❌ O valor deve ser maior que zero.")
-                return
-            
-            # Validação do telefone
-            telefone_valido, msg_telefone = validar_telefone(telefone)
-            if not telefone_valido:
-                st.error(f"❌ {msg_telefone}")
-                return
-            
-            # Formata telefone para salvamento
-            telefone_formatado = formatar_telefone(telefone)
-            
-            # Adicionar lançamento ao banco
-            sucesso = adicionar_lancamento(
-                data.strftime("%Y-%m-%d"),
-                nome.strip(),
-                float(valor),
-                tipo,
-                categoria,
-                st.session_state["usuario"],
-                email.strip() if email else None,
-                telefone=telefone_formatado
-            )
-            
-            if sucesso:
-                st.success("✅ Lançamento registrado com sucesso!")
+            # Mostra indicador de carregamento para validação e processamento
+            with st.spinner("🔄 Processando lançamento..."):
+                # Validação do nome
+                if not validar_nome(nome):
+                    st.error("❌ O nome deve ter pelo menos 2 caracteres.")
+                    return
                 
-                # Enviar WhatsApp se solicitado e se for PIX
-                if enviar_whatsapp and tipo == "Pix":
-                    with st.spinner("📱 Enviando confirmação via WhatsApp..."):
-                        sucesso_whats, msg_whats = enviar_whatsapp_contribuicao(
-                            telefone_formatado,
-                            nome.strip(),
-                            float(valor),
-                            categoria,
-                            formatar_data(data.strftime("%Y-%m-%d"))
-                        )
-                        
-                        if sucesso_whats:
-                            st.success(f"📲 {msg_whats}")
-                        else:
-                            st.warning(f"⚠️ Lançamento registrado, mas: {msg_whats}")
+                # Validação do valor
+                if not validar_valor(valor):
+                    st.error("❌ O valor deve ser maior que zero.")
+                    return
                 
-                # Aguarda um pouco e recarrega
-                import time
-                time.sleep(2)
-                st.rerun()
-            else:
-                st.error("❌ Erro ao registrar lançamento. Tente novamente.")
+                # Validação do telefone
+                telefone_valido, msg_telefone = validar_telefone(telefone)
+                if not telefone_valido:
+                    st.error(f"❌ {msg_telefone}")
+                    return
+                
+                # Formata telefone para salvamento
+                telefone_formatado = formatar_telefone(telefone)
+                
+                # Mostra progresso detalhado
+                progress_placeholder = st.empty()
+                progress_placeholder.info("💾 Salvando dados no banco...")
+                
+                # Adicionar lançamento ao banco
+                sucesso = adicionar_lancamento(
+                    data.strftime("%Y-%m-%d"),
+                    nome.strip(),
+                    float(valor),
+                    tipo,
+                    categoria,
+                    st.session_state["usuario"],
+                    email.strip() if email else None,
+                    telefone=telefone_formatado
+                )
+                
+                if sucesso:
+                    progress_placeholder.empty()
+                    st.success("✅ Lançamento registrado com sucesso!")
+                    
+                    # Enviar WhatsApp se solicitado e se for PIX
+                    if enviar_whatsapp and tipo == "Pix":
+                        with st.spinner("📱 Enviando confirmação via WhatsApp..."):
+                            sucesso_whats, msg_whats = enviar_whatsapp_contribuicao(
+                                telefone_formatado,
+                                nome.strip(),
+                                float(valor),
+                                categoria,
+                                formatar_data(data.strftime("%Y-%m-%d"))
+                            )
+                            
+                            if sucesso_whats:
+                                st.success(f"📲 {msg_whats}")
+                            else:
+                                st.warning(f"⚠️ Lançamento registrado, mas: {msg_whats}")
+                    
+                    # Incrementa contador do formulário para forçar limpeza dos campos
+                    st.session_state.form_counter += 1
+                    
+                    # Mostra mensagem de reload
+                    with st.spinner("🔄 Limpando formulário..."):
+                        import time
+                        time.sleep(1.5)
+                    st.rerun()
+                else:
+                    progress_placeholder.empty()
+                    st.error("❌ Erro ao registrar lançamento. Tente novamente.")

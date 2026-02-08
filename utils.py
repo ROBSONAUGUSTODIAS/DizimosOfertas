@@ -18,7 +18,7 @@ def display_logo():
         # Logo centralizada e responsiva
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            st.image(logo, use_container_width=True)
+            st.image(logo, width="stretch")
     except:
         st.markdown("""
         <style>
@@ -165,6 +165,6 @@ def exibir_usuario_info():
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("🚪 Sair", use_container_width=True):
+        if st.button("🚪 Sair", width="stretch"):
             st.session_state.clear()
             st.rerun()

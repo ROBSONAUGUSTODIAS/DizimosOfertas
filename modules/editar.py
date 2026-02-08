@@ -159,14 +159,14 @@ def exibir_pagina_editar():
                 atualizar_btn = st.form_submit_button(
                     "✅ Atualizar", 
                     type="primary",
-                    use_container_width=True
+                    width="stretch"
                 )
             
             with col_btn2:
                 excluir_btn = st.form_submit_button(
                     "🗑️ Excluir", 
                     type="secondary",
-                    use_container_width=True
+                    width="stretch"
                 )
             
             # ============================================
