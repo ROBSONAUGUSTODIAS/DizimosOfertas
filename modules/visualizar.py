@@ -4,7 +4,7 @@ Otimizado para visualização em Desktop e Mobile
 """
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from database import obter_lancamentos
 from utils import formatar_data, formatar_valor, calcular_totais
 from mobile_config import detectar_mobile
@@ -16,14 +16,39 @@ def exibir_pagina_visualizar():
     Mostra todos os dados incluindo informações de contato
     Layout responsivo para mobile
     """
-    st.subheader("📊 Lançamentos Recentes")
-    
-    lancamentos = obter_lancamentos(
+    st.subheader("📊 Consulta de Lançamentos")
+
+    todos_lancamentos = obter_lancamentos(
         st.session_state["usuario"],
         st.session_state["nivel"]
     )
-    
-    if lancamentos:
+
+    if todos_lancamentos:
+        modo_consulta = st.radio(
+            "Período da consulta",
+            ["Histórico completo", "Últimos 30 dias"],
+            horizontal=True
+        )
+
+        if modo_consulta == "Histórico completo":
+            lancamentos = todos_lancamentos
+        else:
+            data_limite = datetime.today().date() - timedelta(days=30)
+            lancamentos = []
+            for lanc in todos_lancamentos:
+                try:
+                    data_lancamento = datetime.strptime(lanc[1], "%Y-%m-%d").date()
+                    if data_lancamento >= data_limite:
+                        lancamentos.append(lanc)
+                except ValueError:
+                    continue
+
+        st.caption(f"{len(lancamentos)} lançamento(s) encontrado(s) para a consulta selecionada")
+
+        if not lancamentos:
+            st.info("ℹ️ Nenhum lançamento encontrado para o período selecionado.")
+            return
+
         # Resumo Financeiro ANTES da tabela para mobile
         exibir_resumo_financeiro(lancamentos)
         

@@ -33,11 +33,11 @@ pip install -r requirements.txt
 - `pandas` - Manipulação de dados
 - `streamlit-option-menu` - Menu lateral
 - `Pillow` - Processamento de imagens
-- `twilio` - Integração WhatsApp
 
 ### 2️⃣ Executar o Sistema
 
 ```bash
+D:/PROTOTIPO/DizimosOfertas/.venv/Scripts/Activate.ps1
 streamlit run app.py
 ```
 
@@ -65,35 +65,6 @@ Use as credenciais padrão:
 | `diacono02` | `diacono02@#` | Administrador |
 
 **Recomendação de Segurança:** Altere as senhas padrão no arquivo `config.py` antes do uso em produção.
-
----
-
-## 📱 Configurar WhatsApp (Opcional)
-
-O sistema funciona perfeitamente **sem** WhatsApp configurado. 
-
-**⚠️ IMPORTANTE**: WhatsApp é enviado **APENAS para pagamentos PIX**!
-
-Para habilitar o envio de mensagens:
-
-### Primeira Vez:
-
-1. Siga o guia completo: **`WHATSAPP_SETUP.md`**
-2. Configure as credenciais no arquivo `.env`
-3. Reinicie o sistema
-
-### Arquivo `.env`:
-
-Crie um arquivo chamado `.env` na pasta do projeto:
-
-```env
-WHATSAPP_ENABLED=true
-TWILIO_ACCOUNT_SID=seu_account_sid_aqui
-TWILIO_AUTH_TOKEN=seu_auth_token_aqui
-TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
-```
-
-**Sem Twilio configurado:** O sistema funciona normalmente, apenas não enviará WhatsApp.
 
 ---
 
@@ -171,12 +142,10 @@ streamlit run app.py
 - Preencha os dados:
   - Nome do contribuinte
   - Valor da contribuição
-  - **Tipo de pagamento** (selecione PIX para habilitar WhatsApp)
+  - Tipo de pagamento
   - Categoria (Dízimo/Oferta/Visitante)
-  - **Celular** (obrigatório para WhatsApp)
+  - Celular (opcional)
   - Email (opcional)
-- ⚠️ **Atenção**: Checkbox "Enviar confirmação via WhatsApp" **só aparece se tipo = PIX**
-- Marque: ☑️ "Enviar confirmação via WhatsApp" (se PIX)
 - Clique em **"Registrar Lançamento"**
 
 ### 3. Editar/Excluir Lançamentos
@@ -233,17 +202,6 @@ taskkill /PID <numero_do_pid> /F
 # Linux/Mac
 lsof -ti:8501 | xargs kill -9
 ```
-
----
-
-### ❌ Erro ao enviar WhatsApp
-
-**Problema:** Credenciais Twilio não configuradas.
-
-**Solução:**
-1. O sistema funciona SEM WhatsApp configurado
-2. Para habilitar, siga: `WHATSAPP_SETUP.md`
-3. Configure arquivo `.env` com credenciais Twilio
 
 ---
 
@@ -433,7 +391,6 @@ docker run -p 8501:8501 dizimos-ofertas
 - [ ] Acessou http://localhost:8501
 - [ ] Fez login com `admin` / `Admin@#`
 - [ ] Testou registrar uma contribuição
-- [ ] (Opcional) Configurou WhatsApp
 
 ---
 
@@ -441,7 +398,6 @@ docker run -p 8501:8501 dizimos-ofertas
 
 ### Documentação do Projeto:
 - **README.md** - Visão geral do sistema
-- **WHATSAPP_SETUP.md** - Configurar WhatsApp
 - **RESUMO_MODIFICACOES.md** - Detalhes técnicos
 
 ### Documentação Streamlit:
@@ -459,9 +415,8 @@ Seu sistema está rodando em: **http://localhost:8501**
 **Próximos Passos:**
 1. ✅ Faça login
 2. ✅ Registre uma contribuição de teste
-3. ✅ (Opcional) Configure WhatsApp
-4. ✅ Altere senhas padrão para mais segurança
-5. ✅ Adicione o logo da sua igreja em `imagem/`
+3. ✅ Altere senhas padrão para mais segurança
+4. ✅ Adicione o logo da sua igreja em `imagem/`
 
 ---
 

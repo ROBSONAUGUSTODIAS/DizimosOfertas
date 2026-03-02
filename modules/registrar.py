@@ -1,15 +1,13 @@
 """
 Página de Registro de Lançamentos
-Permite cadastrar novos dízimos, ofertas e contribuições com envio de WhatsApp
+Permite cadastrar novos dízimos, ofertas e contribuições
 Otimizado para Desktop e Mobile
 """
 import streamlit as st
-import re
 from datetime import datetime
 from database import adicionar_lancamento
 from config import TIPOS_PAGAMENTO, CATEGORIAS
-from utils import validar_nome, validar_valor, formatar_data
-from whatsapp_service import enviar_whatsapp_contribuicao
+from utils import validar_nome, validar_valor
 from mobile_config import detectar_mobile
 
 
@@ -64,15 +62,12 @@ def formatar_telefone(telefone: str) -> str:
 def exibir_pagina_registrar():
     """
     Exibe a página de registro de novos lançamentos
-    Com foco em WhatsApp e email opcional
+    Com dados de contato opcionais
     Layout responsivo para mobile
     """
     config = detectar_mobile()
     
     st.subheader("➕ Registrar Novo Lançamento")
-    
-    # Informação sobre notificações WhatsApp
-    st.info("📱 **WhatsApp:** Disponível apenas para pagamentos via **PIX**! Preencha o celular para enviar confirmação automática.")
     
     # Inicializa contador de formulários para forçar reset
     if "form_counter" not in st.session_state:
@@ -130,12 +125,12 @@ def exibir_pagina_registrar():
         st.markdown("---")
         st.markdown("#### 📞 Dados de Contato")
         
-        # Telefone/Celular (OBRIGATÓRIO para WhatsApp)
+        # Telefone/Celular (opcional)
         telefone = st.text_input(
-            "Celular (WhatsApp) *",
+            "Celular (opcional)",
             max_chars=15,
             placeholder="(11) 99999-9999",
-            help="Celular com DDD para envio de confirmação via WhatsApp"
+            help="Celular com DDD para cadastro"
         )
         
         # Email (OPCIONAL)
@@ -143,19 +138,8 @@ def exibir_pagina_registrar():
             "Email (opcional)",
             max_chars=100,
             placeholder="exemplo@email.com",
-            help="Email para registro (opcional - WhatsApp é prioritário)"
+            help="Email para registro"
         )
-        
-        # Checkbox para enviar WhatsApp (APENAS PARA PIX)
-        enviar_whatsapp = False
-        if tipo == "Pix":
-            enviar_whatsapp = st.checkbox(
-                "📲 Enviar confirmação via WhatsApp",
-                value=True,
-                help="Confirmação automática via WhatsApp disponível apenas para pagamentos PIX"
-            )
-        else:
-            st.info("ℹ️ Confirmação via WhatsApp disponível apenas para pagamentos via **PIX**")
         
         # Botão de submit - Full width em mobile
         st.markdown("---")
@@ -177,14 +161,13 @@ def exibir_pagina_registrar():
                     st.error("❌ O valor deve ser maior que zero.")
                     return
                 
-                # Validação do telefone
-                telefone_valido, msg_telefone = validar_telefone(telefone)
-                if not telefone_valido:
-                    st.error(f"❌ {msg_telefone}")
-                    return
-                
-                # Formata telefone para salvamento
-                telefone_formatado = formatar_telefone(telefone)
+                telefone_formatado = None
+                if telefone.strip():
+                    telefone_valido, msg_telefone = validar_telefone(telefone)
+                    if not telefone_valido:
+                        st.error(f"❌ {msg_telefone}")
+                        return
+                    telefone_formatado = formatar_telefone(telefone)
                 
                 # Mostra progresso detalhado
                 progress_placeholder = st.empty()
@@ -205,22 +188,6 @@ def exibir_pagina_registrar():
                 if sucesso:
                     progress_placeholder.empty()
                     st.success("✅ Lançamento registrado com sucesso!")
-                    
-                    # Enviar WhatsApp se solicitado e se for PIX
-                    if enviar_whatsapp and tipo == "Pix":
-                        with st.spinner("📱 Enviando confirmação via WhatsApp..."):
-                            sucesso_whats, msg_whats = enviar_whatsapp_contribuicao(
-                                telefone_formatado,
-                                nome.strip(),
-                                float(valor),
-                                categoria,
-                                formatar_data(data.strftime("%Y-%m-%d"))
-                            )
-                            
-                            if sucesso_whats:
-                                st.success(f"📲 {msg_whats}")
-                            else:
-                                st.warning(f"⚠️ Lançamento registrado, mas: {msg_whats}")
                     
                     # Incrementa contador do formulário para forçar limpeza dos campos
                     st.session_state.form_counter += 1

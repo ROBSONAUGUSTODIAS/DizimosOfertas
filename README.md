@@ -1,13 +1,12 @@
 # Sistema de Gestão de Dízimos e Ofertas
 
-Sistema web desenvolvido em Python com Streamlit para gerenciamento de dízimos, ofertas e contribuições de uma igreja, com **integração WhatsApp para pagamentos PIX** - envio automático de confirmações via Twilio API.
+Sistema web desenvolvido em Python com Streamlit para gerenciamento de dízimos, ofertas e contribuições de uma igreja.
 
 ## � Documentação
 
 - **[🔐 GUIA DE SEGURANÇA](GUIA_SEGURANCA.md)** - Guia completo de configuração e uso do sistema seguro
 - **[📋 RESUMO DE SEGURANÇA](RESUMO_SEGURANCA.md)** - Resumo rápido das implementações de segurança
 - **[🔧 IMPLEMENTAÇÃO TÉCNICA](SEGURANCA_IMPLEMENTACAO.md)** - Detalhes técnicos das mudanças
-- **[📱 WhatsApp Setup](WHATSAPP_SETUP.md)** - Configuração do WhatsApp com Twilio
 - **[📚 Documentação Técnica](DOCUMENTACAO_TECNICA.md)** - Documentação completa do sistema
 
 ## �📋 Funcionalidades
@@ -15,20 +14,11 @@ Sistema web desenvolvido em Python com Streamlit para gerenciamento de dízimos,
 ### Gestão de Lançamentos
 - **Autenticação de Usuários**: Sistema de login com diferentes níveis de acesso
 - **Registro de Lançamentos**: Cadastro completo de dízimos, ofertas e contribuições
-- **📱 WhatsApp PIX**: Envio automático de confirmação via WhatsApp **APENAS para pagamentos PIX**
-- **Cadastro de Contatos**: Telefone/celular (obrigatório para WhatsApp) e Email (opcional)
-- **Visualização**: Consulta de lançamentos com filtros e resumos financeiros
+- **Cadastro de Contatos**: Telefone/celular e Email opcionais
+- **Visualização**: Consulta de lançamentos com histórico completo ou últimos 30 dias
 - **Edição e Exclusão**: Gerenciamento completo de registros (apenas admin)
 - **Relatórios**: Totais por dia, mês e categoria
 - **Gráficos**: Visualização de distribuição de entradas
-
-### 📱 Sistema de Notificações WhatsApp (NOVO)
-- **Exclusivo para PIX**: Confirmação via WhatsApp disponível **somente para pagamentos PIX**
-- **Envio Automático**: Confirmação imediata após contribuição PIX
-- **Integração Twilio**: Usando API profissional e confiável
-- **Mensagens Personalizadas**: Dados da contribuição incluídos na mensagem
-- **Validação de Telefone**: Formato brasileiro (DDD + 9 dígitos)
-- **Email Opcional**: Cadastro de email disponível mas não obrigatório
 
 ## 🔐 Segurança e Autenticação
 
@@ -118,11 +108,6 @@ Para publicar a aplicação com segurança:
    USER_ADMIN_HASH = "$2b$12$seu_hash_aqui"
    USER_DIACONO01_HASH = "$2b$12$seu_hash_aqui"
    USER_DIACONO02_HASH = "$2b$12$seu_hash_aqui"
-   
-   WHATSAPP_ENABLED = "false"
-   TWILIO_ACCOUNT_SID = "seu_account_sid"
-   TWILIO_AUTH_TOKEN = "seu_auth_token"
-   TWILIO_WHATSAPP_NUMBER = "whatsapp:+14155238886"
    ```
 
 3. **Clique em "Save"** e reinicie a aplicação
@@ -248,11 +233,10 @@ DizimosOfertas/
 ├── database.py             # Gerenciamento do banco de dados
 ├── auth.py                 # Autenticação e autorização
 ├── utils.py                # Funções utilitárias
-├── whatsapp_service.py     # Integração WhatsApp via Twilio (NOVO)
 ├── modules/                # Módulos da aplicação
 │   ├── __init__.py
 │   ├── visualizar.py       # Módulo de visualização
-│   ├── registrar.py        # Módulo de registro com WhatsApp
+│   ├── registrar.py        # Módulo de registro
 │   └── editar.py           # Módulo de edição
 ├── imagem/                 # Recursos de imagem
 ├── requirements.txt        # Dependências
@@ -502,48 +486,15 @@ Para uso profissional com número próprio:
 
 ## 📦 Módulos do Sistema
 
-### 📱 `whatsapp_service.py` - Integração WhatsApp (NOVO)
+### 📌 Atualização importante
 
-### 📱 `whatsapp_service.py` - Integração WhatsApp (NOVO)
-
-Gerencia envio de mensagens via WhatsApp usando Twilio API:
-
-**Classe WhatsAppService:**
-- `__init__()`: Inicializa cliente Twilio com credenciais
-- `formatar_numero_whatsapp()`: Converte número BR para formato internacional
-  - Input: `(11) 98765-4321`
-  - Output: `whatsapp:+5511987654321`
-  
-- `enviar_confirmacao_contribuicao()`: Envia confirmação completa
-  - Valida serviço habilitado
-  - Formata número
-  - Monta mensagem personalizada
-  - Envia via Twilio API
-  - Retorna status de sucesso/erro
-  
-- `enviar_mensagem_personalizada()`: Envia mensagem customizada
-- `_montar_mensagem_contribuicao()`: Template de mensagem
-
-**Funções Auxiliares:**
-- `enviar_whatsapp_contribuicao()`: Atalho para envio rápido
-
-**Processo de Envio:**
-```python
-1. Cliente Twilio inicializado
-2. Número formatado (BR → Internacional)
-3. Mensagem montada com dados da contribuição
-4. API Twilio chamada
-5. Status retornado
-```
+As rotinas de envio de mensagens (WhatsApp/SMS/Email) foram removidas da aplicação para manter foco no registro e consulta de lançamentos.
 
 #### 1. `config.py` - Configurações
 Centraliza todas as configurações do sistema:
 - Usuários e níveis de acesso
 - Tipos de pagamento e categorias
 - Operadoras de celular
-- Configurações de SMTP (email)
-- Configurações de SMS (Twilio)
-- Flags de ativação de notificações
 
 #### 2. `database.py` - Banco de Dados
 Gerencia todas as operações com o banco SQLite:
@@ -571,8 +522,8 @@ Funções auxiliares do sistema:
 - `calcular_totais()`: Calcula estatísticas financeiras
 - `exibir_usuario_info()`: Exibe informações do usuário logado
 
-#### 5. `notifications.py` - Sistema de Notificações (NOVO)
-Gerencia envio de emails e SMS:
+#### 5. `notifications.py` - Validações de Contato
+Responsável por validações utilitárias de email e celular usadas na edição de lançamentos.
 
 **Funções de Validação:**
 - `validar_email()`: Valida formato de email

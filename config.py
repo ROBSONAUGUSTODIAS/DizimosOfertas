@@ -6,8 +6,13 @@ import os
 # Tenta importar streamlit para uso de secrets (Streamlit Cloud)
 try:
     import streamlit as st
-    USE_STREAMLIT_SECRETS = hasattr(st, 'secrets') and len(st.secrets) > 0
-except (ImportError, FileNotFoundError):
+    # Verifica se secrets foi realmente configurado com a seção [passwords]
+    USE_STREAMLIT_SECRETS = (
+        hasattr(st, 'secrets') and 
+        'passwords' in st.secrets and 
+        len(st.secrets.get('passwords', {})) > 0
+    )
+except (ImportError, FileNotFoundError, Exception):
     USE_STREAMLIT_SECRETS = False
 
 # Carrega variáveis de ambiente do arquivo .env (desenvolvimento local)
@@ -26,16 +31,24 @@ def get_secret(key, section=None):
             if section:
                 # Tenta acessar com seção
                 if section in st.secrets and key in st.secrets[section]:
-                    return st.secrets[section][key]
+                    value = st.secrets[section][key]
+                    if value:  # Garante que não é None ou string vazia
+                        return value
             # Tenta acessar diretamente (fallback)
             if key in st.secrets:
-                return st.secrets[key]
+                value = st.secrets[key]
+                if value:  # Garante que não é None ou string vazia
+                    return value
             return None
         except Exception as e:
             print(f"Erro ao acessar secret {key}: {e}")
             return None
     else:
-        return os.getenv(key)
+        # Usa variáveis de ambiente (.env)
+        value = os.getenv(key)
+        if value:
+            return value
+        return None
 
 # ============================================
 # CONFIGURAÇÃO DE USUÁRIOS E ACESSOS
@@ -88,37 +101,6 @@ TIPOS_PAGAMENTO = ["Dinheiro", "Cartão", "Transferência", "Cheque", "Pix"]
 CATEGORIAS = ["Dízimo", "Oferta", "Visitante"]
 
 # ============================================
-# CONFIGURAÇÕES DO WHATSAPP (TWILIO)
-# ============================================
-
-# Para habilitar o WhatsApp, configure as variáveis abaixo:
-# 1. Crie uma conta em https://www.twilio.com
-# 2. Ative o WhatsApp Sandbox ou configure WhatsApp Business API
-# 3. Obtenha as credenciais no console Twilio
-# 4. Substitua os valores abaixo ou use variáveis de ambiente
-
-import os
-
-# Habilitar/Desabilitar funcionalidade WhatsApp
-WHATSAPP_ENABLED = os.getenv('WHATSAPP_ENABLED', 'False').lower() == 'true'
-
-# Credenciais Twilio (obtenha em https://console.twilio.com)
-TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', 'seu_account_sid_aqui')
-TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', 'seu_auth_token_aqui')
-
-# Número WhatsApp Twilio (formato: whatsapp:+14155238886)
-TWILIO_WHATSAPP_NUMBER = os.getenv('TWILIO_WHATSAPP_NUMBER', 'whatsapp:+14155238886')
-
-# Mensagem padrão pode ser personalizada
-WHATSAPP_MENSAGEM_PADRAO = """
-🙏 *Ministério Dechonai*
-
-Sua contribuição foi registrada com sucesso!
-
-Que Deus abençoe sua vida!
-"""
-
-# ============================================
 # OPERADORAS DE CELULAR
 # ============================================
 
@@ -133,22 +115,3 @@ OPERADORAS = [
     "Outra"
 ]
 
-# ============================================
-# CONFIGURAÇÕES DE NOTIFICAÇÕES
-# ============================================
-
-# Configurações de Email (SMTP)
-SMTP_SERVER = "smtp.gmail.com"  # Servidor SMTP do Gmail
-SMTP_PORT = 587  # Porta para TLS
-EMAIL_REMETENTE = "seu-email@gmail.com"  # Email remetente
-EMAIL_SENHA = "sua-senha-app"  # Senha de aplicativo do Gmail
-
-# Configurações de SMS (Twilio - exemplo)
-TWILIO_ACCOUNT_SID = "seu_account_sid"  # Account SID do Twilio
-TWILIO_AUTH_TOKEN = "seu_auth_token"  # Auth Token do Twilio
-TWILIO_PHONE_NUMBER = "+5511999999999"  # Número do Twilio
-
-# Habilitar/Desabilitar Notificações
-NOTIFICACOES_HABILITADAS = True  # True para habilitar, False para desabilitar
-ENVIAR_EMAIL_AUTO = True  # Enviar e-mail automaticamente após cadastro
-ENVIAR_SMS_AUTO = True  # Enviar SMS automaticamente após cadastro

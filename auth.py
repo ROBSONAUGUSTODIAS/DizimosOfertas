@@ -19,6 +19,9 @@ def verificar_senha_hash(senha: str, hash_armazenado: str) -> bool:
         True se a senha está correta, False caso contrário
     """
     try:
+        if not hash_armazenado:
+            return False
+            
         # Converte senha e hash para bytes
         senha_bytes = senha.encode('utf-8')
         hash_bytes = hash_armazenado.encode('utf-8')
