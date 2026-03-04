@@ -4,6 +4,8 @@ Otimizado para visualização em Desktop e Mobile
 """
 import streamlit as st
 import pandas as pd
+import base64
+import streamlit.components.v1 as components
 from datetime import datetime, timedelta
 from database import obter_lancamentos
 from utils import formatar_data, formatar_valor, calcular_totais
@@ -109,9 +111,106 @@ def exibir_pagina_visualizar():
             hide_index=True,
             height=400  # Altura fixa para melhor controle em mobile
         )
+
+        exibir_exportacao_csv(df)
         
     else:
         st.info("ℹ️ Nenhum lançamento registrado ainda.")
+
+
+def exibir_exportacao_csv(df):
+    """Exibe ações de exportação CSV com suporte a compartilhamento no celular."""
+    st.markdown("---")
+    st.markdown("#### ⬇️ Exportar Dados")
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    nome_arquivo = f"lancamentos_{timestamp}.csv"
+
+    csv_texto = df.to_csv(index=False, sep=";", encoding="utf-8-sig")
+    csv_bytes = csv_texto.encode("utf-8-sig")
+
+    st.download_button(
+        label="⬇️ Baixar CSV",
+        data=csv_bytes,
+        file_name=nome_arquivo,
+        mime="text/csv",
+        use_container_width=True,
+        key=f"download_csv_{timestamp}"
+    )
+
+    st.caption("No celular, toque em **📲 Compartilhar CSV** e escolha **Google Drive** para salvar na nuvem.")
+
+    csv_base64 = base64.b64encode(csv_bytes).decode("utf-8")
+
+    components.html(
+        f"""
+        <div style="margin-top: 8px; margin-bottom: 8px;">
+            <button id="shareCsvBtn" style="
+                width: 100%;
+                min-height: 44px;
+                border: 1px solid #d0d7de;
+                border-radius: 8px;
+                background: #f6f8fa;
+                color: #24292f;
+                font-weight: 600;
+                font-size: 16px;
+                cursor: pointer;
+            ">
+                📲 Compartilhar CSV (celular)
+            </button>
+            <div id="shareCsvStatus" style="font-size: 13px; margin-top: 6px; color: #57606a;"></div>
+        </div>
+
+        <script>
+        const botao = document.getElementById('shareCsvBtn');
+        const status = document.getElementById('shareCsvStatus');
+        const csvBase64 = "{csv_base64}";
+        const fileName = "{nome_arquivo}";
+
+        function base64ParaBytes(base64) {{
+            const binario = atob(base64);
+            const tamanho = binario.length;
+            const bytes = new Uint8Array(tamanho);
+            for (let i = 0; i < tamanho; i++) {{
+                bytes[i] = binario.charCodeAt(i);
+            }}
+            return bytes;
+        }}
+
+        botao.addEventListener('click', async () => {{
+            status.textContent = '';
+            try {{
+                const bytes = base64ParaBytes(csvBase64);
+                const arquivo = new File([bytes], fileName, {{ type: 'text/csv;charset=utf-8;' }});
+
+                if (navigator.share && navigator.canShare && navigator.canShare({{ files: [arquivo] }})) {{
+                    await navigator.share({{
+                        title: 'Exportação de Lançamentos',
+                        text: 'Arquivo CSV dos lançamentos',
+                        files: [arquivo]
+                    }});
+                    status.textContent = 'Compartilhado com sucesso.';
+                    return;
+                }}
+
+                const blob = new Blob([bytes], {{ type: 'text/csv;charset=utf-8;' }});
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+                status.textContent = 'Seu navegador não suportou compartilhamento direto. Foi iniciado o download.';
+            }} catch (erro) {{
+                status.textContent = 'Não foi possível compartilhar agora. Use o botão Baixar CSV.';
+            }}
+        }});
+        </script>
+        """,
+        height=110
+    )
 
 
 def exibir_resumo_financeiro(lancamentos):

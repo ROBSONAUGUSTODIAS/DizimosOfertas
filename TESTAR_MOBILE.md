@@ -107,6 +107,9 @@
 ### 📊 Visualização
 - [ ] Métricas empilhadas verticalmente
 - [ ] Tabela com scroll horizontal suave
+- [ ] Botão "Baixar CSV" gera arquivo corretamente
+- [ ] Botão "Compartilhar CSV (celular)" abre menu de compartilhamento
+- [ ] Opção Google Drive aparece no compartilhamento (Android/iOS)
 - [ ] Gráfico ocupa toda largura
 - [ ] Info do usuário visível
 - [ ] Botão "Sair" acessível
@@ -168,6 +171,12 @@
 ### ❌ "Tabela muito larga"
 **Solução:**
 - ✅ Já corrigido! Scroll horizontal implementado
+
+### ❌ "Quero salvar CSV direto no Google Drive pelo celular"
+**Solução:**
+- Use o botão **📲 Compartilhar CSV (celular)** na tela de visualização
+- No menu de compartilhamento do sistema, selecione **Google Drive**
+- Se o navegador não suportar compartilhamento de arquivo, use **⬇️ Baixar CSV** e compartilhe manualmente o arquivo
 
 ### ❌ "Botões muito pequenos"
 **Solução:**
