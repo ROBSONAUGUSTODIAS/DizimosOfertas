@@ -5,8 +5,9 @@ Otimizado para visualização em Desktop e Mobile
 import streamlit as st
 import pandas as pd
 import base64
+import io
 import streamlit.components.v1 as components
-from datetime import datetime, timedelta
+from datetime import datetime
 from database import obter_lancamentos
 from utils import formatar_data, formatar_valor, calcular_totais
 from mobile_config import detectar_mobile
@@ -26,26 +27,18 @@ def exibir_pagina_visualizar():
     )
 
     if todos_lancamentos:
-        modo_consulta = st.radio(
-            "Período da consulta",
-            ["Histórico completo", "Últimos 30 dias"],
-            horizontal=True
-        )
+        data_hoje = datetime.today().date()
+        lancamentos = []
+        for lanc in todos_lancamentos:
+            try:
+                data_lancamento = datetime.strptime(lanc[1], "%Y-%m-%d").date()
+                if data_lancamento == data_hoje:
+                    lancamentos.append(lanc)
+            except ValueError:
+                continue
 
-        if modo_consulta == "Histórico completo":
-            lancamentos = todos_lancamentos
-        else:
-            data_limite = datetime.today().date() - timedelta(days=30)
-            lancamentos = []
-            for lanc in todos_lancamentos:
-                try:
-                    data_lancamento = datetime.strptime(lanc[1], "%Y-%m-%d").date()
-                    if data_lancamento >= data_limite:
-                        lancamentos.append(lanc)
-                except ValueError:
-                    continue
-
-        st.caption(f"{len(lancamentos)} lançamento(s) encontrado(s) para a consulta selecionada")
+        data_referencia = datetime.today().strftime("%d/%m/%Y")
+        st.caption(f"Mostrando lançamentos de hoje ({data_referencia}) • {len(lancamentos)} registro(s)")
 
         if not lancamentos:
             st.info("ℹ️ Nenhum lançamento encontrado para o período selecionado.")
@@ -112,40 +105,43 @@ def exibir_pagina_visualizar():
             height=400  # Altura fixa para melhor controle em mobile
         )
 
-        exibir_exportacao_csv(df)
+        exibir_exportacao_planilha(df)
         
     else:
         st.info("ℹ️ Nenhum lançamento registrado ainda.")
 
 
-def exibir_exportacao_csv(df):
-    """Exibe ações de exportação CSV com suporte a compartilhamento no celular."""
+def exibir_exportacao_planilha(df):
+    """Exibe ações de exportação de planilha compatível com Google Sheets."""
     st.markdown("---")
     st.markdown("#### ⬇️ Exportar Dados")
 
+    data_arquivo = datetime.now().strftime("%d-%m-%Y")
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    nome_arquivo = f"lancamentos_{timestamp}.csv"
+    nome_arquivo = f"lancamentos_{data_arquivo}.xlsx"
 
-    csv_texto = df.to_csv(index=False, sep=";", encoding="utf-8-sig")
-    csv_bytes = csv_texto.encode("utf-8-sig")
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="Lancamentos")
+    planilha_bytes = buffer.getvalue()
 
     st.download_button(
-        label="⬇️ Baixar CSV",
-        data=csv_bytes,
+        label="⬇️ Baixar Planilha (Google Sheets)",
+        data=planilha_bytes,
         file_name=nome_arquivo,
-        mime="text/csv",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         use_container_width=True,
-        key=f"download_csv_{timestamp}"
+        key=f"download_planilha_{timestamp}"
     )
 
-    st.caption("No celular, toque em **📲 Compartilhar CSV** e escolha **Google Drive** para salvar na nuvem.")
+    st.caption("No Android, toque em **📲 Compartilhar no Google Sheets** e escolha **Google Sheets** para abrir/salvar como planilha.")
 
-    csv_base64 = base64.b64encode(csv_bytes).decode("utf-8")
+    planilha_base64 = base64.b64encode(planilha_bytes).decode("utf-8")
 
     components.html(
         f"""
         <div style="margin-top: 8px; margin-bottom: 8px;">
-            <button id="shareCsvBtn" style="
+            <button id="shareSheetBtn" style="
                 width: 100%;
                 min-height: 44px;
                 border: 1px solid #d0d7de;
@@ -156,16 +152,21 @@ def exibir_exportacao_csv(df):
                 font-size: 16px;
                 cursor: pointer;
             ">
-                📲 Compartilhar CSV (celular)
+                📲 Compartilhar no Google Sheets
             </button>
-            <div id="shareCsvStatus" style="font-size: 13px; margin-top: 6px; color: #57606a;"></div>
+            <div id="shareSheetStatus" style="font-size: 13px; margin-top: 6px; color: #57606a;"></div>
         </div>
 
         <script>
-        const botao = document.getElementById('shareCsvBtn');
-        const status = document.getElementById('shareCsvStatus');
-        const csvBase64 = "{csv_base64}";
+        const botao = document.getElementById('shareSheetBtn');
+        const status = document.getElementById('shareSheetStatus');
+        const planilhaBase64 = "{planilha_base64}";
         const fileName = "{nome_arquivo}";
+        const isAndroid = /Android/i.test(navigator.userAgent || '');
+
+        if (isAndroid) {{
+            status.textContent = 'Android detectado: escolha Google Sheets para abrir como planilha.';
+        }}
 
         function base64ParaBytes(base64) {{
             const binario = atob(base64);
@@ -180,20 +181,26 @@ def exibir_exportacao_csv(df):
         botao.addEventListener('click', async () => {{
             status.textContent = '';
             try {{
-                const bytes = base64ParaBytes(csvBase64);
-                const arquivo = new File([bytes], fileName, {{ type: 'text/csv;charset=utf-8;' }});
+                const bytes = base64ParaBytes(planilhaBase64);
+                const arquivo = new File(
+                    [bytes],
+                    fileName,
+                    {{ type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }}
+                );
 
                 if (navigator.share && navigator.canShare && navigator.canShare({{ files: [arquivo] }})) {{
                     await navigator.share({{
-                        title: 'Exportação de Lançamentos',
-                        text: 'Arquivo CSV dos lançamentos',
+                        title: 'Exportar Planilha de Lançamentos',
+                        text: 'No Android, selecione Google Sheets para abrir e salvar como planilha.',
                         files: [arquivo]
                     }});
-                    status.textContent = 'Compartilhado com sucesso.';
+                    status.textContent = isAndroid
+                        ? 'Compartilhamento aberto. Selecione Google Sheets para abrir/salvar a planilha.'
+                        : 'Compartilhado com sucesso.';
                     return;
                 }}
 
-                const blob = new Blob([bytes], {{ type: 'text/csv;charset=utf-8;' }});
+                const blob = new Blob([bytes], {{ type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }});
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
@@ -202,9 +209,17 @@ def exibir_exportacao_csv(df):
                 link.click();
                 link.remove();
                 URL.revokeObjectURL(url);
-                status.textContent = 'Seu navegador não suportou compartilhamento direto. Foi iniciado o download.';
+                status.textContent = isAndroid
+                    ? 'Seu navegador não abriu o compartilhamento. O download da planilha foi iniciado; abra no app Google Sheets.'
+                    : 'Seu navegador não suportou compartilhamento direto. Foi iniciado o download.';
             }} catch (erro) {{
-                status.textContent = 'Não foi possível compartilhar agora. Use o botão Baixar CSV.';
+                if (erro && erro.name === 'AbortError') {{
+                    status.textContent = 'Compartilhamento cancelado.';
+                }} else {{
+                    status.textContent = isAndroid
+                        ? 'Não foi possível abrir o compartilhamento agora. Use o botão Baixar Planilha e abra no Google Sheets.'
+                        : 'Não foi possível compartilhar agora. Use o botão Baixar Planilha.';
+                }}
             }}
         }});
         </script>

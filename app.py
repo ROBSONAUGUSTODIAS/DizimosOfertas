@@ -5,6 +5,7 @@ Otimizado para Desktop e Mobile
 """
 import streamlit as st
 from streamlit_option_menu import option_menu
+from datetime import datetime, timedelta
 
 # Importações dos módulos personalizados
 from config import PAGE_TITLE, PAGE_ICON, LAYOUT
@@ -19,6 +20,12 @@ from mobile_config import aplicar_css_mobile
 
 def exibir_tela_login():
     """Exibe a tela de login - otimizado para mobile"""
+    # Proteção básica contra tentativa excessiva de login por sessão
+    if "login_tentativas" not in st.session_state:
+        st.session_state["login_tentativas"] = 0
+    if "login_bloqueado_ate" not in st.session_state:
+        st.session_state["login_bloqueado_ate"] = None
+
     # Centralizar conteúdo em mobile
     col1, col2, col3 = st.columns([1, 6, 1])
     
@@ -35,13 +42,8 @@ def exibir_tela_login():
             **Solução:**
             1. Acesse: [App Settings](https://share.streamlit.io/)
             2. Clique em **Settings** → **Secrets**
-            3. Cole este conteúdo:
+            3. Configure os hashes dos usuários no formato exigido
             """)
-            st.code("""[passwords]
-USER_ADMIN_HASH = "$2b$12$kKdAncvxkviV412Bj.WuMe2ve/Qaqkn4sq1CiFXh.QeWF6Bp1hXbq"
-USER_DIACONO01_HASH = "$2b$12$7erenEeA2eP5HecUUGGtp.LRxYuxXqYWKb/zNwT8VOIpM6UyeWMEy"
-USER_DIACONO02_HASH = "$2b$12$7rxfZGjQqq9cOnpaiRvRnu9vLhNKmKVAFh2zwEvfC9fdaaqmEfSN"
-""", language="toml")
             st.info("📖 Veja o guia completo: TROUBLESHOOTING_LOGIN.md")
         
         st.markdown("---")
@@ -64,14 +66,29 @@ USER_DIACONO02_HASH = "$2b$12$7rxfZGjQqq9cOnpaiRvRnu9vLhNKmKVAFh2zwEvfC9fdaaqmEf
             submitted = st.form_submit_button("🔐 Entrar", type="primary")
             
             if submitted:
+                bloqueado_ate = st.session_state.get("login_bloqueado_ate")
+                agora = datetime.now()
+                if bloqueado_ate and agora < bloqueado_ate:
+                    restante = int((bloqueado_ate - agora).total_seconds() // 60) + 1
+                    st.error(f"❌ Muitas tentativas inválidas. Tente novamente em {restante} minuto(s).")
+                    return
+
                 usuario_info = verificar_login(usuario, senha)
                 if usuario_info:
+                    st.session_state["login_tentativas"] = 0
+                    st.session_state["login_bloqueado_ate"] = None
                     st.session_state["usuario"] = usuario_info["usuario"]
                     st.session_state["nome"] = usuario_info["nome"]
                     st.session_state["nivel"] = usuario_info["nivel"]
+                    st.session_state["ultima_atividade"] = datetime.now().isoformat()
                     st.success(f"✅ Bem-vindo, {usuario_info['nome']}!")
                     st.rerun()
                 else:
+                    st.session_state["login_tentativas"] += 1
+                    if st.session_state["login_tentativas"] >= 5:
+                        st.session_state["login_bloqueado_ate"] = datetime.now() + timedelta(minutes=15)
+                        st.error("❌ Muitas tentativas inválidas. Acesso bloqueado por 15 minutos.")
+                        return
                     st.error("❌ Credenciais inválidas. Tente novamente.")
 
 
@@ -140,6 +157,20 @@ def main():
     if "usuario" not in st.session_state:
         exibir_tela_login()
     else:
+        # Expiração básica de sessão por inatividade
+        agora = datetime.now()
+        ultima_atividade = st.session_state.get("ultima_atividade")
+        if ultima_atividade:
+            try:
+                ultimo_acesso = datetime.fromisoformat(ultima_atividade)
+                if (agora - ultimo_acesso) > timedelta(minutes=30):
+                    st.session_state.clear()
+                    st.warning("⚠️ Sessão expirada por inatividade. Faça login novamente.")
+                    st.rerun()
+            except ValueError:
+                pass
+
+        st.session_state["ultima_atividade"] = agora.isoformat()
         exibir_pagina_principal()
 
 

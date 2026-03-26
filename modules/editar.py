@@ -168,6 +168,11 @@ def exibir_pagina_editar():
                     type="secondary",
                     width="stretch"
                 )
+
+            confirmar_exclusao = st.checkbox(
+                "Confirmo a exclusão permanente deste lançamento",
+                value=False
+            )
             
             # ============================================
             # PROCESSAMENTO DAS AÇÕES
@@ -226,9 +231,10 @@ def exibir_pagina_editar():
                     st.error("❌ Erro ao atualizar lançamento. Tente novamente.")
             
             if excluir_btn:
-                # Confirmação de exclusão
-                st.warning("⚠️ Tem certeza que deseja excluir este lançamento?")
-                
+                if not confirmar_exclusao:
+                    st.warning("⚠️ Marque a confirmação de exclusão para continuar.")
+                    return
+
                 sucesso = excluir_lancamento(id_selecionado)
                 
                 if sucesso:

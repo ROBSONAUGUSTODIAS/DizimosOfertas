@@ -1,6 +1,7 @@
 """
 Módulo de validações de contato
 """
+import re
 
 
 def validar_email(email: str) -> bool:
@@ -13,9 +14,16 @@ def validar_email(email: str) -> bool:
     Returns:
         True se válido, False caso contrário
     """
-    if not email or '@' not in email or '.' not in email:
+    if not email:
         return False
-    return True
+
+    email = email.strip()
+    if len(email) > 254:
+        return False
+
+    # Validação simples e segura para formato comum de email
+    padrao = r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+    return re.match(padrao, email) is not None
 
 
 def validar_celular(codigo_area: str, celular: str) -> bool:
