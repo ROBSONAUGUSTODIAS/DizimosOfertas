@@ -1,4 +1,4 @@
-# 📱 Como Testar no Celular
+﻿# 📱 Como Testar no Celular
 
 ## 🚀 Guia Rápido
 
@@ -292,7 +292,7 @@ Tire prints para documentação:
 ### Teste de 5 Minutos
 
 1. ✅ **Abrir app em mobile view**
-2. ✅ **Login:** admin / AdminSeguro@2026
+2. ✅ **Login:** admin / SENHA_ADMIN_EXEMPLO
 3. ✅ **Ver dashboard:** métricas visíveis?
 4. ✅ **Scroll tabela:** funciona horizontal?
 5. ✅ **Ir para Registrar:** formulário ok?

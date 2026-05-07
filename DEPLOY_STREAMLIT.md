@@ -1,4 +1,4 @@
-# 🚀 GUIA DE DEPLOY - STREAMLIT CLOUD
+﻿# 🚀 GUIA DE DEPLOY - STREAMLIT CLOUD
 
 ## 📋 Pré-requisitos
 
@@ -143,7 +143,7 @@ Acesse a URL do app e tente fazer login:
 
 ```
 Usuário: admin
-Senha: AdminSeguro@2026
+Senha: SENHA_ADMIN_EXEMPLO
 ```
 
 ### 3. Testar Funcionalidades

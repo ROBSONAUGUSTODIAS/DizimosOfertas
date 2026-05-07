@@ -1,4 +1,4 @@
-# ✅ SISTEMA DE SEGURANÇA - IMPLEMENTADO COM SUCESSO!
+﻿# ✅ SISTEMA DE SEGURANÇA - IMPLEMENTADO COM SUCESSO!
 
 ## 🎉 Parabéns! Seu sistema agora está 100% seguro para publicação!
 
@@ -64,21 +64,21 @@ O sistema já está pronto para uso com estas credenciais:
 ### Login 1: Administrador
 ```
 Usuário: admin
-Senha: AdminSeguro@2026
+Senha: SENHA_ADMIN_EXEMPLO
 Nível: Admin (acesso total)
 ```
 
 ### Login 2: Diácono 01
 ```
 Usuário: diacono01
-Senha: Diacono01@2026
+Senha: SENHA_DIACONO01_EXEMPLO
 Nível: Admin (acesso total)
 ```
 
 ### Login 3: Diácono 02
 ```
 Usuário: diacono02
-Senha: Diacono02@2026
+Senha: SENHA_DIACONO02_EXEMPLO
 Nível: Admin (acesso total)
 ```
 
@@ -125,9 +125,9 @@ git push origin main
 4. Cole este conteúdo:
 
 ```toml
-USER_ADMIN_HASH = "$2b$12$kKdAncvxkviV412Bj.WuMe2ve/Qaqkn4sq1CiFXh.QeWF6Bp1hXbq"
-USER_DIACONO01_HASH = "$2b$12$7erenEeA2eP5HecUUGGtp.LRxYuxXqYWKb/zNwT8VOIpM6UyeWMEy"
-USER_DIACONO02_HASH = "$2b$12$7rxfZGjQqq9cOnpaiRvRnu9vLhNKmKVAFh2zwEvfC9fdaaqmEfSN."
+USER_ADMIN_HASH = "$2b$12$SEU_HASH_ADMIN_GERADO_AQUI................................"
+USER_DIACONO01_HASH = "$2b$12$SEU_HASH_DIACONO01_GERADO_AQUI............................"
+USER_DIACONO02_HASH = "$2b$12$SEU_HASH_DIACONO02_GERADO_AQUI............................"
 
 WHATSAPP_ENABLED = "false"
 TWILIO_ACCOUNT_SID = "seu_account_sid_aqui"
@@ -198,7 +198,7 @@ USER_NOVOUSUARIO_HASH=$2b$12$abc123...xyz789
 ### ✅ Teste 1: Login Válido
 ```python
 from auth import verificar_login
-resultado = verificar_login('admin', 'AdminSeguro@2026')
+resultado = verificar_login('admin', 'SENHA_ADMIN_EXEMPLO')
 # Resultado: {'usuario': 'admin', 'nome': 'Administrador', 'nivel': 'admin'}
 ```
 **Status:** ✅ PASSOU
@@ -214,7 +214,7 @@ resultado = verificar_login('admin', 'senhaErrada')
 ### ✅ Teste 3: Hash Bcrypt
 ```python
 import bcrypt
-senha = "AdminSeguro@2026"
+senha = "SENHA_ADMIN_EXEMPLO"
 hash_gerado = "$2b$12$kKdAncvxkviV412Bj.WuMe2ve..."
 bcrypt.checkpw(senha.encode(), hash_gerado.encode())
 # Resultado: True

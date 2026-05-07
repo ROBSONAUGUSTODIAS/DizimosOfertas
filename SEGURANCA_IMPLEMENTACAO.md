@@ -1,4 +1,4 @@
-# 📋 Resumo das Implementações de Segurança
+﻿# 📋 Resumo das Implementações de Segurança
 
 ## Data: 07 de Fevereiro de 2026
 
@@ -79,15 +79,15 @@ USUARIOS_HASHES = {
 #### a) `.env`
 Arquivo com credenciais reais (NÃO compartilhar)
 ```env
-USER_ADMIN_HASH=$2b$12$kKdAncvxkviV412Bj.WuMe2ve/Qaqkn4sq1CiFXh.QeWF6Bp1hXbq
-USER_DIACONO01_HASH=$2b$12$7erenEeA2eP5HecUUGGtp.LRxYuxXqYWKb/zNwT8VOIpM6UyeWMEy
-USER_DIACONO02_HASH=$2b$12$7rxfZGjQqq9cOnpaiRvRnu9vLhNKmKVAFh2zwEvfC9fdaaqmEfSN.
+USER_ADMIN_HASH=$2b$12$SEU_HASH_ADMIN_GERADO_AQUI................................
+USER_DIACONO01_HASH=$2b$12$SEU_HASH_DIACONO01_GERADO_AQUI............................
+USER_DIACONO02_HASH=$2b$12$SEU_HASH_DIACONO02_GERADO_AQUI............................
 ```
 
 **Senhas de TESTE:**
-- admin: `AdminSeguro@2026`
-- diacono01: `Diacono01@2026`
-- diacono02: `Diacono02@2026`
+- admin: `SENHA_ADMIN_EXEMPLO`
+- diacono01: `SENHA_DIACONO01_EXEMPLO`
+- diacono02: `SENHA_DIACONO02_EXEMPLO`
 
 #### b) `.env.example`
 Template sem dados sensíveis (pode compartilhar)
@@ -183,9 +183,9 @@ pip install -r requirements.txt
 
 2. **Usar senhas de teste** (já configuradas no .env):
 ```
-admin: AdminSeguro@2026
-diacono01: Diacono01@2026
-diacono02: Diacono02@2026
+admin: SENHA_ADMIN_EXEMPLO
+diacono01: SENHA_DIACONO01_EXEMPLO
+diacono02: SENHA_DIACONO02_EXEMPLO
 ```
 
 3. **Executar aplicação:**

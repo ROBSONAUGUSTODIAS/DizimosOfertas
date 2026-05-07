@@ -16,9 +16,12 @@ except (ImportError, FileNotFoundError, Exception):
     USE_STREAMLIT_SECRETS = False
 
 # Carrega variáveis de ambiente do arquivo .env (desenvolvimento local)
-if not USE_STREAMLIT_SECRETS:
+# Mesmo com Streamlit secrets habilitado, manter o .env como fallback.
+try:
     from dotenv import load_dotenv
     load_dotenv()
+except Exception:
+    pass
 
 def get_secret(key, section=None):
     """
@@ -34,21 +37,19 @@ def get_secret(key, section=None):
                     value = st.secrets[section][key]
                     if value:  # Garante que não é None ou string vazia
                         return value
-            # Tenta acessar diretamente (fallback)
+            # Tenta acessar diretamente
             if key in st.secrets:
                 value = st.secrets[key]
                 if value:  # Garante que não é None ou string vazia
                     return value
-            return None
         except Exception as e:
             print(f"Erro ao acessar secret {key}: {e}")
-            return None
-    else:
-        # Usa variáveis de ambiente (.env)
-        value = os.getenv(key)
-        if value:
-            return value
-        return None
+
+    # Fallback para variáveis de ambiente (.env)
+    value = os.getenv(key)
+    if value:
+        return value
+    return None
 
 # ============================================
 # CONFIGURAÇÃO DE USUÁRIOS E ACESSOS
@@ -63,19 +64,22 @@ def get_secret(key, section=None):
 USUARIOS_HASHES = {
     "admin": get_secret('USER_ADMIN_HASH', 'passwords') or get_secret('USER_ADMIN_HASH'),
     "diacono01": get_secret('USER_DIACONO01_HASH', 'passwords') or get_secret('USER_DIACONO01_HASH'),
-    "diacono02": get_secret('USER_DIACONO02_HASH', 'passwords') or get_secret('USER_DIACONO02_HASH')
+    "diacono02": get_secret('USER_DIACONO02_HASH', 'passwords') or get_secret('USER_DIACONO02_HASH'),
+    "diacono03": get_secret('USER_DIACONO03_HASH', 'passwords') or get_secret('USER_DIACONO03_HASH')
 }
 
 NIVEIS_ACESSO = {
     "admin": "admin",
-    "diacono01": "admin",
-    "diacono02": "admin"
+    "diacono01": "diacono",
+    "diacono02": "diacono",
+    "diacono03": "diacono"
 }
 
 NOMES_USUARIOS = {
     "admin": "Administrador",
     "diacono01": "Diácono01",
-    "diacono02": "Diácono02"
+    "diacono02": "Diácono02",
+    "diacono03": "Diácono03"
 }
 
 # ============================================

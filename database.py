@@ -5,6 +5,8 @@ import sqlite3
 from contextlib import contextmanager
 from typing import List, Tuple, Optional
 from config import DATABASE_NAME
+from database_membros import init_membros_table
+from permissions import init_permissions_table
 
 
 @contextmanager
@@ -54,6 +56,9 @@ def init_db():
             )
         ''')
         conn.commit()
+    
+    init_membros_table()
+    init_permissions_table()
 
 
 def adicionar_lancamento(data: str, nome: str, valor: float, tipo: str, 

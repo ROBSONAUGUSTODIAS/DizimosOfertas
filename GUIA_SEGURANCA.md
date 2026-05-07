@@ -1,4 +1,4 @@
-# 🔐 Guia de Segurança - Login e Senha
+﻿# 🔐 Guia de Segurança - Login e Senha
 
 ## ⚠️ IMPORTANTE - Leia Antes de Publicar
 
@@ -36,9 +36,9 @@ pip install -r requirements.txt
 O arquivo `.env` já foi criado com senhas de TESTE. 
 
 **Senhas de TESTE atuais:**
-- Usuário: `admin` | Senha: `AdminSeguro@2026`
-- Usuário: `diacono01` | Senha: `Diacono01@2026`
-- Usuário: `diacono02` | Senha: `Diacono02@2026`
+- Usuário: `admin` | Senha: `SENHA_ADMIN_EXEMPLO`
+- Usuário: `diacono01` | Senha: `SENHA_DIACONO01_EXEMPLO`
+- Usuário: `diacono02` | Senha: `SENHA_DIACONO02_EXEMPLO`
 
 **Para criar suas próprias senhas:**
 

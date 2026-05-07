@@ -1,4 +1,4 @@
-# 🔐 RESUMO: Sistema de Segurança Implementado
+﻿# 🔐 RESUMO: Sistema de Segurança Implementado
 
 ## ✅ O QUE FOI FEITO
 
@@ -29,9 +29,9 @@
 As senhas de teste já estão configuradas no arquivo `.env`:
 
 ```
-Usuário: admin       | Senha: AdminSeguro@2026
-Usuário: diacono01   | Senha: Diacono01@2026
-Usuário: diacono02   | Senha: Diacono02@2026
+Usuário: admin       | Senha: SENHA_ADMIN_EXEMPLO
+Usuário: diacono01   | Senha: SENHA_DIACONO01_EXEMPLO
+Usuário: diacono02   | Senha: SENHA_DIACONO02_EXEMPLO
 ```
 
 **Execute:**
@@ -103,7 +103,7 @@ git push origin main
 ✅ **Teste 1: Login com senha correta**
 ```
 Usuário: admin
-Senha: AdminSeguro@2026
+Senha: SENHA_ADMIN_EXEMPLO
 Resultado: ✅ SUCESSO - Login autorizado
 ```
 

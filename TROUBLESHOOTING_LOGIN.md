@@ -1,4 +1,4 @@
-# 🔧 SOLUÇÃO: Erro de Autenticação no Streamlit Cloud
+﻿# 🔧 SOLUÇÃO: Erro de Autenticação no Streamlit Cloud
 
 ## ❌ Problema
 Não consigo fazer login em: https://dizimosofertas-dechomai.streamlit.app/
@@ -19,9 +19,9 @@ Não consigo fazer login em: https://dizimosofertas-dechomai.streamlit.app/
 
 ```toml
 [passwords]
-USER_ADMIN_HASH = "$2b$12$kKdAncvxkviV412Bj.WuMe2ve/Qaqkn4sq1CiFXh.QeWF6Bp1hXbq"
-USER_DIACONO01_HASH = "$2b$12$7erenEeA2eP5HecUUGGtp.LRxYuxXqYWKb/zNwT8VOIpM6UyeWMEy"
-USER_DIACONO02_HASH = "$2b$12$7rxfZGjQqq9cOnpaiRvRnu9vLhNKmKVAFh2zwEvfC9fdaaqmEfSN."
+USER_ADMIN_HASH = "$2b$12$SEU_HASH_ADMIN_GERADO_AQUI................................"
+USER_DIACONO01_HASH = "$2b$12$SEU_HASH_DIACONO01_GERADO_AQUI............................"
+USER_DIACONO02_HASH = "$2b$12$SEU_HASH_DIACONO02_GERADO_AQUI............................"
 ```
 
 3. Clique em **Save**
@@ -33,16 +33,16 @@ Aguarde 30-60 segundos e tente fazer login:
 
 ```
 Usuário: admin
-Senha: AdminSeguro@2026
+Senha: SENHA_ADMIN_EXEMPLO
 ```
 
 Outros usuários para teste:
 ```
 Usuário: diacono01
-Senha: Diacono01@2026
+Senha: SENHA_DIACONO01_EXEMPLO
 
 Usuário: diacono02
-Senha: Diacono02@2026
+Senha: SENHA_DIACONO02_EXEMPLO
 ```
 
 ---
@@ -56,7 +56,7 @@ Se ainda não funcionar, verifique:
 **CORRETO:**
 ```toml
 [passwords]
-USER_ADMIN_HASH = "$2b$12$kKdAncvxkviV412Bj.WuMe2ve/Qaqkn4sq1CiFXh.QeWF6Bp1hXbq"
+USER_ADMIN_HASH = "$2b$12$SEU_HASH_ADMIN_GERADO_AQUI................................"
 ```
 
 **ERRADO:** ❌
@@ -161,7 +161,7 @@ Isso testa se os hashes e senhas estão corretos.
 
 1. **Senha digitada errada:**
    - Verifique maiúsculas/minúsculas
-   - Senha admin: `AdminSeguro@2026` (A maiúsculo, S maiúsculo)
+   - Senha admin: `SENHA_ADMIN_EXEMPLO` (A maiúsculo, S maiúsculo)
    - Não adicione espaços no início ou fim
    
 2. **Hash incompleto nos Secrets:**
@@ -188,7 +188,7 @@ Abra o **Diagnóstico de Configuração** na tela de login e veja:
 
 ```
 Usuário: admin
-Senha: AdminSeguro@2026
+Senha: SENHA_ADMIN_EXEMPLO
 
 Copie e cole EXATAMENTE como está acima!
 ```
@@ -220,9 +220,9 @@ Copie e cole EXATAMENTE como está acima!
 
 ```toml
 [passwords]
-USER_ADMIN_HASH = "$2b$12$kKdAncvxkviV412Bj.WuMe2ve/Qaqkn4sq1CiFXh.QeWF6Bp1hXbq"
-USER_DIACONO01_HASH = "$2b$12$7erenEeA2eP5HecUUGGtp.LRxYuxXqYWKb/zNwT8VOIpM6UyeWMEy"
-USER_DIACONO02_HASH = "$2b$12$7rxfZGjQqq9cOnpaiRvRnu9vLhNKmKVAFh2zwEvfC9fdaaqmEfSN."
+USER_ADMIN_HASH = "$2b$12$SEU_HASH_ADMIN_GERADO_AQUI................................"
+USER_DIACONO01_HASH = "$2b$12$SEU_HASH_DIACONO01_GERADO_AQUI............................"
+USER_DIACONO02_HASH = "$2b$12$SEU_HASH_DIACONO02_GERADO_AQUI............................"
 ```
 
 ---
@@ -240,9 +240,9 @@ Depois de configurar os Secrets:
 ## 🔐 IMPORTANTE: Trocar Senhas em Produção
 
 As senhas atuais são de **TESTE**:
-- ❌ AdminSeguro@2026
-- ❌ Diacono01@2026
-- ❌ Diacono02@2026
+- ❌ SENHA_ADMIN_EXEMPLO
+- ❌ SENHA_DIACONO01_EXEMPLO
+- ❌ SENHA_DIACONO02_EXEMPLO
 
 **Para trocar:**
 

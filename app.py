@@ -10,12 +10,18 @@ from datetime import datetime, timedelta
 # Importações dos módulos personalizados
 from config import PAGE_TITLE, PAGE_ICON, LAYOUT
 from database import init_db
-from auth import verificar_login, pode_editar, pode_administrar
+from auth import verificar_login
 from utils import display_logo, exibir_usuario_info
 from modules.visualizar import exibir_pagina_visualizar
 from modules.registrar import exibir_pagina_registrar
 from modules.editar import exibir_pagina_editar
+from modules.membros import exibir_pagina_membros
+from modules.duvidas import exibir_pagina_duvidas
+from modules.aniversariantes import exibir_pagina_aniversariantes
+from modules.certificado import exibir_pagina_certificado
+from modules.permissoes import exibir_painel_permissoes
 from mobile_config import aplicar_css_mobile
+from permissions import usuario_tem_permissao
 
 
 def exibir_tela_login():
@@ -30,8 +36,16 @@ def exibir_tela_login():
     col1, col2, col3 = st.columns([1, 6, 1])
     
     with col2:
-        st.title("💻 Login")
-        
+        # ── Logo Ministério Dehomai ──────────────────────────────────────
+        import os
+        logo_login = "./imagem/logo-login.png"
+        if os.path.exists(logo_login):
+            c1, c2, c3 = st.columns([1.5, 1, 1.5])
+            with c2:
+                st.image(logo_login, use_container_width=True)
+        else:
+            st.title("🔐 Login")
+
         # Debug: Verificar se secrets estão configurados (Streamlit Cloud)
         from config import USUARIOS_HASHES
         if not any(USUARIOS_HASHES.values()):
@@ -94,16 +108,45 @@ def exibir_tela_login():
 
 def configurar_menu():
     """Configura o menu lateral com base nas permissões do usuário"""
-    opcoes_menu = ["Visualizar"]
-    icons = ["list"]
-    
-    if pode_editar(st.session_state["nivel"]):
+    usuario = st.session_state["usuario"]
+    nivel   = st.session_state["nivel"]
+
+    opcoes_menu = []
+    icons = []
+
+    # Cada módulo aparece no menu somente se o usuário tiver permissão
+    if usuario_tem_permissao(usuario, "visualizar"):
+        opcoes_menu.append("Visualizar")
+        icons.append("list")
+
+    if usuario_tem_permissao(usuario, "registrar"):
         opcoes_menu.append("Registrar")
         icons.append("plus-circle")
-    
-    if pode_administrar(st.session_state["nivel"]):
+
+    if usuario_tem_permissao(usuario, "membros"):
+        opcoes_menu.append("Cadastro de Membros")
+        icons.append("people")
+
+    if usuario_tem_permissao(usuario, "aniversariantes"):
+        opcoes_menu.append("Aniversariantes")
+        icons.append("balloon-heart")
+
+    if usuario_tem_permissao(usuario, "certificado"):
+        opcoes_menu.append("Certificado")
+        icons.append("award")
+
+    if usuario_tem_permissao(usuario, "editar"):
         opcoes_menu.append("Editar")
         icons.append("pencil-square")
+
+    # Painel de permissões — exclusivo para admin
+    if nivel == "admin":
+        opcoes_menu.append("Permissões")
+        icons.append("shield-lock")
+
+    # Dúvidas está sempre disponível para todos
+    opcoes_menu.append("Dúvidas")
+    icons.append("question-circle")
     
     with st.sidebar:
         display_logo()
@@ -127,14 +170,32 @@ def exibir_pagina_principal():
     escolha = configurar_menu()
     
     # Renderizar página selecionada
-    if escolha == "Visualizar":
+    usuario = st.session_state["usuario"]
+    nivel   = st.session_state["nivel"]
+
+    if escolha == "Visualizar" and usuario_tem_permissao(usuario, "visualizar"):
         exibir_pagina_visualizar()
-    
-    elif escolha == "Registrar" and pode_editar(st.session_state["nivel"]):
+
+    elif escolha == "Registrar" and usuario_tem_permissao(usuario, "registrar"):
         exibir_pagina_registrar()
-    
-    elif escolha == "Editar" and pode_administrar(st.session_state["nivel"]):
+
+    elif escolha == "Cadastro de Membros" and usuario_tem_permissao(usuario, "membros"):
+        exibir_pagina_membros()
+
+    elif escolha == "Aniversariantes" and usuario_tem_permissao(usuario, "aniversariantes"):
+        exibir_pagina_aniversariantes()
+
+    elif escolha == "Certificado" and usuario_tem_permissao(usuario, "certificado"):
+        exibir_pagina_certificado()
+
+    elif escolha == "Editar" and usuario_tem_permissao(usuario, "editar"):
         exibir_pagina_editar()
+
+    elif escolha == "Permissões" and nivel == "admin":
+        exibir_painel_permissoes()
+
+    elif escolha == "Dúvidas":
+        exibir_pagina_duvidas()
 
 
 def main():
