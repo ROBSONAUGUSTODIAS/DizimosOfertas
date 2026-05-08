@@ -119,3 +119,34 @@ OPERADORAS = [
     "Outra"
 ]
 
+
+# ============================================
+# CONFIGURAÇÕES DE EMAIL (NEWSLETTER)
+# ============================================
+
+def str_to_bool(value, default=False):
+    """Converte string para booleano com fallback seguro."""
+    if value is None:
+        return default
+    return str(value).strip().lower() in {"1", "true", "t", "yes", "y", "on"}
+
+
+SMTP_ENABLED = str_to_bool(get_secret("SMTP_ENABLED"), default=False)
+SMTP_HOST = get_secret("SMTP_HOST")
+SMTP_PORT = int(get_secret("SMTP_PORT") or 587)
+SMTP_USER = get_secret("SMTP_USER")
+SMTP_PASSWORD = get_secret("SMTP_PASSWORD")
+SMTP_FROM_NAME = get_secret("SMTP_FROM_NAME") or "Sistema de Dízimos e Ofertas"
+SMTP_FROM_EMAIL = get_secret("SMTP_FROM_EMAIL") or SMTP_USER
+SMTP_USE_TLS = str_to_bool(get_secret("SMTP_USE_TLS"), default=True)
+
+
+# ============================================
+# CONFIGURAÇÕES RAPIDAPI (CORRETOR ORTOGRÁFICO)
+# ============================================
+
+JSPELL_API_URL = get_secret("JSPELL_API_URL") or "https://jspell-checker.p.rapidapi.com/check"
+JSPELL_API_HOST = get_secret("JSPELL_API_HOST") or "jspell-checker.p.rapidapi.com"
+JSPELL_API_KEY = get_secret("JSPELL_API_KEY") or get_secret("RAPIDAPI_KEY")
+JSPELL_TIMEOUT_SECONDS = int(get_secret("JSPELL_TIMEOUT_SECONDS") or 20)
+

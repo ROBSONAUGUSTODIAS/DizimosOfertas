@@ -20,6 +20,8 @@ from modules.duvidas import exibir_pagina_duvidas
 from modules.aniversariantes import exibir_pagina_aniversariantes
 from modules.certificado import exibir_pagina_certificado
 from modules.permissoes import exibir_painel_permissoes
+from modules.newsletter import exibir_pagina_newsletter
+from modules.calendario import exibir_pagina_calendario
 from mobile_config import aplicar_css_mobile
 from permissions import usuario_tem_permissao
 
@@ -123,6 +125,10 @@ def configurar_menu():
         opcoes_menu.append("Registrar")
         icons.append("plus-circle")
 
+    if usuario_tem_permissao(usuario, "editar"):
+        opcoes_menu.append("Editar")
+        icons.append("pencil-square")
+
     if usuario_tem_permissao(usuario, "membros"):
         opcoes_menu.append("Cadastro de Membros")
         icons.append("people")
@@ -135,9 +141,13 @@ def configurar_menu():
         opcoes_menu.append("Certificado")
         icons.append("award")
 
-    if usuario_tem_permissao(usuario, "editar"):
-        opcoes_menu.append("Editar")
-        icons.append("pencil-square")
+    if usuario_tem_permissao(usuario, "newsletter"):
+        opcoes_menu.append("Newsletter")
+        icons.append("envelope-paper")
+
+    if usuario_tem_permissao(usuario, "calendario"):
+        opcoes_menu.append("Calendário")
+        icons.append("calendar-event")
 
     # Painel de permissões — exclusivo para admin
     if nivel == "admin":
@@ -187,6 +197,12 @@ def exibir_pagina_principal():
 
     elif escolha == "Certificado" and usuario_tem_permissao(usuario, "certificado"):
         exibir_pagina_certificado()
+
+    elif escolha == "Newsletter" and usuario_tem_permissao(usuario, "newsletter"):
+        exibir_pagina_newsletter()
+
+    elif escolha == "Calendário" and usuario_tem_permissao(usuario, "calendario"):
+        exibir_pagina_calendario()
 
     elif escolha == "Editar" and usuario_tem_permissao(usuario, "editar"):
         exibir_pagina_editar()

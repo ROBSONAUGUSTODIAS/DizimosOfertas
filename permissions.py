@@ -45,6 +45,18 @@ MODULOS_SISTEMA = {
         "descricao": "Visualizar certificado e baixar em PDF A4",
         "menu_icon": "award",
     },
+    "newsletter": {
+        "label": "Newsletter",
+        "icon": "📰",
+        "descricao": "Criar comunicados, enviar por email e baixar em PDF",
+        "menu_icon": "envelope-paper",
+    },
+    "calendario": {
+        "label": "Calendário",
+        "icon": "📅",
+        "descricao": "Consultar e criar eventos, além de enviar agenda por email",
+        "menu_icon": "calendar-event",
+    },
     "editar": {
         "label": "Editar Lançamentos",
         "icon": "✏️",

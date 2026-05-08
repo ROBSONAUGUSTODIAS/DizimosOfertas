@@ -18,6 +18,8 @@ def exibir_pagina_duvidas():
 | 1.3.0  | Mai/2026 | Módulo de Aniversariantes |
 | 1.4.0  | Mai/2026 | Módulo de Permissões e controle de acesso por perfil |
 | 1.5.0  | Mai/2026 | Módulo de Certificado com visualização e download em PDF A4 (alta e compacta) |
+| 1.6.0  | Mai/2026 | Módulo de Newsletter com comunicados, envio de e-mail e download em PDF |
+| 1.7.0  | Mai/2026 | Módulo de Calendário de Eventos com criação, consulta e envio da agenda por e-mail |
 """)
 
     st.markdown("---")

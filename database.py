@@ -6,6 +6,8 @@ from contextlib import contextmanager
 from typing import List, Tuple, Optional
 from config import DATABASE_NAME
 from database_membros import init_membros_table
+from database_newsletter import init_newsletter_table
+from database_calendario import init_calendario_table
 from permissions import init_permissions_table
 
 
@@ -58,6 +60,8 @@ def init_db():
         conn.commit()
     
     init_membros_table()
+    init_newsletter_table()
+    init_calendario_table()
     init_permissions_table()
 
 
