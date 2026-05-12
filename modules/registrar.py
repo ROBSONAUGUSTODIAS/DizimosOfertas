@@ -13,6 +13,12 @@ from utils import validar_nome, validar_valor
 from mobile_config import detectar_mobile
 
 
+def _chave_reg(campo: str) -> str:
+    """Gera chave de widget com base na geração atual do formulário."""
+    gen = st.session_state.get("reg_form_gen", 0)
+    return f"reg_{gen}_{campo}"
+
+
 def validar_telefone(telefone: str) -> tuple[bool, str]:
     """
     Valida formato de telefone brasileiro
@@ -68,8 +74,7 @@ def _inicializar_estado_registro():
     # são gerenciadas pelo próprio Streamlit e, ao limpar, devem ser deletadas
     # em vez de reatribuídas (evita StreamlitAPIException).
     defaults = {
-        "reg_email": "",
-        "reg_telefone": "",
+        "reg_form_gen": 0,
         "reg_nome_confirmado": "",
         "reg_sugestoes": [],
     }
@@ -89,6 +94,17 @@ def exibir_pagina_registrar():
     config = detectar_mobile()
     _inicializar_estado_registro()
 
+    # Chaves dos widgets da geração atual do formulário.
+    chave_data = _chave_reg("data")
+    chave_nome_visitante = _chave_reg("nome_visitante")
+    chave_nome_input = _chave_reg("nome_input")
+    chave_sugestao_select = _chave_reg("sugestao_select")
+    chave_valor = _chave_reg("valor")
+    chave_tipo_pagamento = _chave_reg("tipo_pagamento")
+    chave_categoria = _chave_reg("categoria")
+    chave_telefone_input = _chave_reg("telefone_input")
+    chave_email_input = _chave_reg("email_input")
+
     st.subheader("➕ Registrar Novo Lançamento")
 
     membros = obter_membros()
@@ -98,6 +114,7 @@ def exibir_pagina_registrar():
     data = st.date_input(
         "Data",
         value=datetime.today(),
+        key=chave_data,
         format="DD/MM/YYYY",
         help="Data em que a contribuição foi realizada"
     )
@@ -106,28 +123,28 @@ def exibir_pagina_registrar():
 
     # Lê a categoria já salva em session_state (definida no selectbox abaixo).
     # Na primeira execução ainda não existe, então assume o primeiro valor da lista.
-    categoria_atual = st.session_state.get("reg_categoria", CATEGORIAS[0])
+    categoria_atual = st.session_state.get(chave_categoria, CATEGORIAS[0])
 
     # ── Modo Visitante: campo de texto livre ───────────────────────────────
     if categoria_atual == "Visitante":
         st.caption("ℹ️ Visitantes não precisam estar cadastrados no sistema.")
         st.text_input(
             "Nome do Visitante *",
-            key="reg_nome_visitante",
+            key=chave_nome_visitante,
             max_chars=100,
             placeholder="Digite o nome do visitante...",
             help="Informe o nome do visitante",
         )
-        nome = st.session_state.get("reg_nome_visitante", "").strip()
+        nome = st.session_state.get(chave_nome_visitante, "").strip()
 
     # ── Modo Membro: busca com auto-preenchimento ──────────────────────────
     else:
         # Callback: filtra membros ao digitar
         def buscar_membros():
-            texto = st.session_state.get("reg_nome_input", "").strip()
+            texto = st.session_state.get(chave_nome_input, "").strip()
             st.session_state.reg_nome_confirmado = ""
-            st.session_state.reg_email = ""
-            st.session_state.reg_telefone = ""
+            st.session_state[chave_email_input] = ""
+            st.session_state[chave_telefone_input] = ""
             if texto and len(texto) >= 2:
                 st.session_state.reg_sugestoes = [
                     m for m in membros
@@ -138,19 +155,19 @@ def exibir_pagina_registrar():
 
         # Callback: ao escolher da lista de sugestões
         def confirmar_membro():
-            escolha = st.session_state.get("reg_sugestao_select", "")
+            escolha = st.session_state.get(chave_sugestao_select, "")
             if escolha and escolha != "-- Selecione --":
                 for m in membros:
                     if m["nome"] == escolha:
                         st.session_state.reg_nome_confirmado = m["nome"]
-                        st.session_state.reg_email     = m["email"] or ""
-                        st.session_state.reg_telefone  = m["telefone"] or ""
+                        st.session_state[chave_email_input] = m["email"] or ""
+                        st.session_state[chave_telefone_input] = m["telefone"] or ""
                         st.session_state.reg_sugestoes = []
                         break
 
         st.text_input(
             "Nome do Membro *",
-            key="reg_nome_input",
+            key=chave_nome_input,
             on_change=buscar_membros,
             max_chars=100,
             placeholder="Digite para buscar membros cadastrados...",
@@ -163,16 +180,16 @@ def exibir_pagina_registrar():
             st.selectbox(
                 "Membros encontrados:",
                 opcoes,
-                key="reg_sugestao_select",
+                key=chave_sugestao_select,
                 on_change=confirmar_membro,
                 help="Clique no nome para selecionar o membro",
             )
         elif (not sugestoes
-              and st.session_state.get("reg_nome_input", "").strip()
+              and st.session_state.get(chave_nome_input, "").strip()
               and not st.session_state.reg_nome_confirmado):
             st.caption("⚠️ Nenhum membro encontrado com esse nome.")
 
-        nome = st.session_state.reg_nome_confirmado or st.session_state.get("reg_nome_input", "")
+        nome = st.session_state.reg_nome_confirmado or st.session_state.get(chave_nome_input, "")
 
     st.markdown("---")
 
@@ -180,6 +197,7 @@ def exibir_pagina_registrar():
         "Valor (R$) *",
         min_value=0.01,
         step=0.01,
+        key=chave_valor,
         format="%.2f",
         help="Valor da contribuição em reais"
     )
@@ -189,31 +207,32 @@ def exibir_pagina_registrar():
         tipo = st.selectbox(
             "Tipo de Pagamento *",
             TIPOS_PAGAMENTO,
+            key=chave_tipo_pagamento,
             help="Forma de pagamento utilizada"
         )
     with col2:
         categoria = st.selectbox(
             "Categoria *",
             CATEGORIAS,
-            key="reg_categoria",
+            key=chave_categoria,
             help="Tipo de contribuição"
         )
 
     st.markdown("---")
 
-    label_telefone = "Celular (preenchido automaticamente)" if st.session_state.reg_telefone else "Celular (opcional)"
+    label_telefone = "Celular (preenchido automaticamente)" if st.session_state.get(chave_telefone_input, "") else "Celular (opcional)"
     telefone = st.text_input(
         label_telefone,
-        value=st.session_state.reg_telefone,
+        key=chave_telefone_input,
         max_chars=15,
         placeholder="(11) 99999-9999",
         help="Celular com DDD para cadastro"
     )
 
-    label_email = "Email (preenchido automaticamente)" if st.session_state.reg_email else "Email (opcional)"
+    label_email = "Email (preenchido automaticamente)" if st.session_state.get(chave_email_input, "") else "Email (opcional)"
     email = st.text_input(
         label_email,
-        value=st.session_state.reg_email,
+        key=chave_email_input,
         max_chars=100,
         placeholder="exemplo@email.com",
         help="Email para registro"
@@ -257,15 +276,16 @@ def exibir_pagina_registrar():
                 st.success("✅ Lançamento registrado com sucesso!")
 
                 # Limpa chaves de estado não vinculadas a widgets
-                for chave in ("reg_email", "reg_telefone", "reg_nome_confirmado"):
-                    st.session_state[chave] = ""
+                st.session_state["reg_nome_confirmado"] = ""
                 st.session_state["reg_sugestoes"] = []
 
-                # Para chaves vinculadas a widgets, DELETAR em vez de atribuir
-                # (evita StreamlitAPIException: cannot be modified after instantiation)
-                for chave in ("reg_nome_input", "reg_nome_visitante", "reg_sugestao_select"):
-                    if chave in st.session_state:
+                # Troca a geração para reconstruir o formulário limpo no próximo rerun.
+                gen_atual = st.session_state.get("reg_form_gen", 0)
+                prefixo_geracao_atual = f"reg_{gen_atual}_"
+                for chave in list(st.session_state.keys()):
+                    if chave.startswith(prefixo_geracao_atual):
                         del st.session_state[chave]
+                st.session_state["reg_form_gen"] = gen_atual + 1
 
                 time.sleep(1.5)
                 st.rerun()
